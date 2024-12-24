@@ -66,7 +66,7 @@ const DashboardOverview = () => {
     );
   }
 
-  const totalRevenue = calculateTotalRevenue(products);
+  const totalRevenue = "-";
   const totalProducts = products.length;
   const totalVisitors = visitors.length;
   const lowStockProducts = products.filter(p => parseInt(p.qnty_product) < 10).length;
