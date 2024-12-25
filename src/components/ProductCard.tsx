@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Product } from '../../types/products';
-
+import { Product } from '../types/products';
 interface ProductCardProps {
   product: Product;
   onUpdate: () => void;
