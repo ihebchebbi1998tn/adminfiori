@@ -137,7 +137,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     xxl_size: '',
     color_product: '',
     status_product: '',
-    related_products: '',
+    related_products: 'first',
   });
 
   const availableCategories = useMemo(() => {
@@ -467,7 +467,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
                 </select>
               </div>
 
-              <div className="md:col-span-2">
+              {/* <div className="md:col-span-2">
                 <label htmlFor="related_products" className={labelClassName}>Produits Associés</label>
                 <input
                   type="text"
@@ -478,7 +478,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
                   placeholder="Entrer les produits associés"
                   className={inputClassName}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
