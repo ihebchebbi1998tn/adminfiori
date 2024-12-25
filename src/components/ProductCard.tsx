@@ -131,12 +131,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
         </div>
       </div>
       <div className="flex justify-between items-center px-6 py-4 border-t">
-        <button
+        {/* <button
           onClick={() => onUpdate()}
           className="flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600"
         >
           <Edit className="w-4 h-4 mr-2" /> Modifier
-        </button>
+        </button> */}
         <button
           onClick={() => onDelete(product)}
           className="flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600"
