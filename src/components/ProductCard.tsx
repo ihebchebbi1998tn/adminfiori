@@ -1,31 +1,6 @@
 import React, { useState } from 'react';
-import { Edit, Trash2, Package, Tag, AlertCircle } from 'lucide-react';
-
-export interface Product {
-  id_product: string;
-  reference_product: string;
-  nom_product: string;
-  img_product: string;
-  img2_product: string;
-  img3_product: string;
-  img4_product: string;
-  description_product: string;
-  type_product: string;
-  category_product: string;
-  itemgroup_product: string;
-  price_product: string;
-  qnty_product: string;
-  xs_size: string;
-  s_size: string;
-  m_size: string;
-  l_size: string;
-  xl_size: string;
-  xxl_size: string;
-  status_product: string;
-  related_products: string;
-  color_product: string;
-  createdate_product: string;
-}
+import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Product } from '../../types/products';
 
 interface ProductCardProps {
   product: Product;
@@ -35,112 +10,90 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }) => {
   const [currentImage, setCurrentImage] = useState(0);
+  const images = [product.img_product, product.img2_product, product.img3_product, product.img4_product].filter(Boolean);
 
-  const images = [
-    product.img_product,
-    product.img2_product,
-    product.img3_product,
-    product.img4_product,
-  ];
-
-  const stockMessage =
-    parseInt(product.qnty_product) > 10
-      ? { text: 'En stock', color: 'text-green-600', bgColor: 'bg-green-50' }
-      : parseInt(product.qnty_product) > 0
-      ? { text: 'Stock limité', color: 'text-orange-600', bgColor: 'bg-orange-50' }
-      : { text: 'Épuisé', color: 'text-red-600', bgColor: 'bg-red-50' };
-
-  const formatPrice = (price: string) =>
-    new Intl.NumberFormat('fr-TN', {
-      style: 'currency',
-      currency: 'TND',
-    }).format(Number(price));
+  const stockStatus = parseInt(product.qnty_product);
+  const stockDisplay = stockStatus > 10 
+    ? { text: 'In Stock', color: 'text-green-600', bg: 'bg-green-50' }
+    : stockStatus > 0 
+    ? { text: 'Low Stock', color: 'text-orange-600', bg: 'bg-orange-50' }
+    : { text: 'Out of Stock', color: 'text-red-600', bg: 'bg-red-50' };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      {/* Carousel Section: Images */}
-      <div className="relative">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all w-[280px]">
+      {/* Image Gallery */}
+      <div className="relative h-40 bg-gray-50">
         <img
           src={`https://respizenmedical.com/fiori/${images[currentImage]}`}
-          alt={`Product: ${product.nom_product}`}
-          className="w-full h-64 object-cover transition-transform duration-300"
+          alt={product.nom_product}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
-          {images.map((_, index) => (
+        {images.length > 1 && (
+          <div className="absolute inset-0 flex items-center justify-between px-2">
             <button
-              key={index}
-              onClick={() => setCurrentImage(index)}
-              className={`w-3 h-3 rounded-full ${
-                currentImage === index ? 'bg-blue-500' : 'bg-gray-300'
-              }`}
-            ></button>
+              onClick={() => setCurrentImage((prev) => (prev - 1 + images.length) % images.length)}
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-white/90 shadow-sm hover:bg-white"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentImage((prev) => (prev + 1) % images.length)}
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-white/90 shadow-sm hover:bg-white"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 space-y-2">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider">REF: {product.reference_product}</p>
+            <h3 className="font-medium text-sm text-gray-900 truncate">{product.nom_product}</h3>
+          </div>
+          <span className={`shrink-0 px-2 py-0.5 text-[10px] font-medium rounded-full ${stockDisplay.bg} ${stockDisplay.color}`}>
+            {stockDisplay.text}
+          </span>
+        </div>
+
+        {/* Categories */}
+        <div className="flex flex-wrap gap-1 text-[10px]">
+          {product.type_product && (
+            <span className="px-1.5 py-0.5 bg-gray-100 rounded-full">{product.type_product}</span>
+          )}
+          {product.category_product && (
+            <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded-full">{product.category_product}</span>
+          )}
+        </div>
+
+        {/* Sizes Grid */}
+        <div className="grid grid-cols-6 gap-0.5 text-[10px] bg-gray-50 p-1 rounded">
+          {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+            <div key={size} className="text-center">
+              <div className="font-medium text-gray-600">{size}</div>
+              <div className="bg-white rounded">{product[`${size.toLowerCase()}_size` as keyof Product]}</div>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Product Information Section */}
-      <div className="p-6 space-y-4">
-        <div>
-        <p className="text-sm text-gray-600">ref = {product.reference_product} </p>
-          <h2 className="text-xl font-bold text-gray-800">{product.nom_product} </h2>
-          <p className="text-sm text-gray-600">{product.description_product}</p>
-        </div>
-
-        {/* Price and Stock Status */}
-        <div className="flex justify-between items-center">
-          <span className="text-lg font-bold text-[#5a0c1a]">{formatPrice(product.price_product)}</span>
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold ${stockMessage.color} ${stockMessage.bgColor}`}
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <span className="font-semibold text-sm text-[#5a0c1a]">
+            {new Intl.NumberFormat('fr-TN', {
+              style: 'currency',
+              currency: 'TND'
+            }).format(Number(product.price_product))}
+          </span>
+          <button
+            onClick={() => onDelete(product)}
+            className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
           >
-            {product.qnty_product} {parseInt(product.qnty_product) > 1 ? 'pièces' : 'pièce'}{' '}
-          </span>
+            <Trash2 className="w-4 h-4" />
+          </button>
         </div>
-
-        <div className="flex flex-wrap gap-3">
-          <span className="px-2 py-1.5 bg-gray-100 text-xs font-small text-gray-700 rounded-full">
-            {product.type_product}
-          </span>
-          <span className="px-2 py-1.5 bg-blue-50 text-xs font-small text-blue-700 rounded-full">
-            {product.category_product}
-          </span>
-          <span className="px-2 py-1.5 bg-orange-50 text-xs font-small text-orange-700 rounded-full">
-            {product.itemgroup_product}
-          </span>
-        </div>
-
-        {/* Sizes */}
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div>
-            XS: <span>{product.xs_size}</span>
-          </div>
-          <div>
-            S: <span>{product.s_size}</span>
-          </div>
-          <div>
-            M: <span>{product.m_size}</span>
-          </div>
-          <div>
-            L: <span>{product.l_size}</span>
-          </div>
-          <div>
-            XL: <span>{product.xl_size}</span>
-          </div>
-          <div>
-            XXL: <span>{product.xxl_size}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex justify-between items-center px-6 py-4 border-t">
-        {/* <button
-          onClick={() => onUpdate()}
-          className="flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600"
-        >
-          <Edit className="w-4 h-4 mr-2" /> Modifier
-        </button> */}
-        <button
-          onClick={() => onDelete(product)}
-          className="flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600"
-        ><Trash2 className="w-4 h-4 mr-2" /></button>
       </div>
     </div>
   );
