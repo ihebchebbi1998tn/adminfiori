@@ -2,16 +2,29 @@ import React, { useState } from 'react';
 import { Edit, Trash2, Package, Tag, AlertCircle } from 'lucide-react';
 
 export interface Product {
-  id_product: number;
+  id_product: string;
+  reference_product: string;
   nom_product: string;
   img_product: string;
-  price_product: number;
-  qnty_product: number;
-  status_product: string;
+  img2_product: string;
+  img3_product: string;
+  img4_product: string;
   description_product: string;
   type_product: string;
   category_product: string;
-  reference_product: string;
+  itemgroup_product: string;
+  price_product: string;
+  qnty_product: string;
+  xs_size: string;
+  s_size: string;
+  m_size: string;
+  l_size: string;
+  xl_size: string;
+  xxl_size: string;
+  status_product: string;
+  related_products: string;
+  color_product: string;
+  createdate_product: string;
 }
 
 interface ProductCardProps {
@@ -21,125 +34,115 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }) => {
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
 
-  const imageUrl = product.img_product.startsWith('http')
-    ? product.img_product
-    : `https://respizenmedical.com/fiori/${product.img_product}`;
+  const images = [
+    product.img_product,
+    product.img2_product,
+    product.img3_product,
+    product.img4_product,
+  ];
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-TN', {
+  const stockMessage =
+    parseInt(product.qnty_product) > 10
+      ? { text: 'En stock', color: 'text-green-600', bgColor: 'bg-green-50' }
+      : parseInt(product.qnty_product) > 0
+      ? { text: 'Stock limité', color: 'text-orange-600', bgColor: 'bg-orange-50' }
+      : { text: 'Épuisé', color: 'text-red-600', bgColor: 'bg-red-50' };
+
+  const formatPrice = (price: string) =>
+    new Intl.NumberFormat('fr-TN', {
       style: 'currency',
       currency: 'TND',
-      minimumFractionDigits: 3
-    }).format(price);
-  };
-
-  const getStockStatus = () => {
-    if (product.qnty_product > 10) return { color: 'text-green-600', bgColor: 'bg-green-50', text: 'En stock' };
-    if (product.qnty_product > 0) return { color: 'text-orange-600', bgColor: 'bg-orange-50', text: 'Stock limité' };
-    if (product.status_product === 'En stock') return { color: 'text-green-600', bgColor: 'bg-green-50', text: 'En stock' };
-    if (product.status_product === 'Épuisé') return { color: 'text-orange-600', bgColor: 'bg-orange-50', text: 'Stock limité' };
-    return { color: 'text-red-600', bgColor: 'bg-red-50', text: 'Épuisé' };
-  };
-
-  const getCategoryLabel = (category: string) => {
-    return category === 'Men' ? 'Homme' : 'Femme';
-  };
+    }).format(Number(price));
 
   return (
-    <>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100">
-        <div className="relative group h-64">
-          <img
-            src={imageError ? '/images/default-product.jpg' : imageUrl}
-            alt={product.nom_product}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-            onError={() => setImageError(true)}
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-
-          <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+      {/* Carousel Section: Images */}
+      <div className="relative">
+        <img
+          src={`https://respizenmedical.com/fiori/${images[currentImage]}`}
+          alt={`Product: ${product.nom_product}`}
+          className="w-full h-64 object-cover transition-transform duration-300"
+        />
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+          {images.map((_, index) => (
             <button
-              onClick={() => setShowEditForm(true)}
-              className="p-3 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 group"
-              title="Modifier le produit"
-            >
-              <Edit className="w-4 h-4 text-gray-700 group-hover:text-blue-600" />
-            </button>
-            <button
-              onClick={() => onDelete(product)}
-              className="p-3 bg-white/95 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200 group"
-              title="Supprimer le produit"
-            >
-              <Trash2 className="w-4 h-4 text-gray-700 group-hover:text-red-600" />
-            </button>
-          </div>
-
-          {product.qnty_product <= 10 && (
-            <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-medium flex items-center gap-1.5 shadow-lg">
-              <AlertCircle className="w-3.5 h-3.5 text-orange-500" />
-              <span className="text-orange-700">Stock limité</span>
-            </div>
-          )}
-        </div>
-
-        <div className="p-6 space-y-4">
-          <div>
-            <h3 className="font-bold text-xl text-gray-800 line-clamp-2 hover:line-clamp-none transition-all duration-200">
-              {product.nom_product}
-            </h3>
-            <p className="text-gray-600 text-sm mt-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
-              {product.description_product}
-            </p>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <span className="text-[#5a0c1a] font-bold text-2xl">
-              {formatPrice(product.price_product)}
-            </span>
-            <div className={`px-3 py-1.5 ${getStockStatus().bgColor} rounded-full flex items-center gap-2`}>
-              <Package className="w-4 h-4 text-gray-600" />
-              <span className={`text-sm font-semibold ${getStockStatus().color}`}>
-                {product.qnty_product} {product.qnty_product > 1 ? 'pièces' : 'pièce'}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <span className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full flex items-center gap-1.5 font-medium">
-              <Tag className="w-3.5 h-3.5" />
-              {product.type_product}
-            </span>
-            <span className="text-xs px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full font-medium">
-              {getCategoryLabel(product.category_product)}
-            </span>
-          </div>
-
-          <div className="pt-3 mt-3 border-t border-gray-100 flex justify-between items-center">
-            <div className="text-sm text-gray-500">
-              Réf: <span className="font-medium">{product.reference_product}</span>
-            </div>
-            <div className={`text-sm ${getStockStatus().color} font-medium`}>
-              {getStockStatus().text}
-            </div>
-          </div>
+              key={index}
+              onClick={() => setCurrentImage(index)}
+              className={`w-3 h-3 rounded-full ${
+                currentImage === index ? 'bg-blue-500' : 'bg-gray-300'
+              }`}
+            ></button>
+          ))}
         </div>
       </div>
 
-      {showEditForm && (
-        <EditProductForm
-          product={product}
-          onClose={() => setShowEditForm(false)}
-          onSuccess={() => {
-            onUpdate();
-            setShowEditForm(false);
-          }}
-        />
-      )}
-    </>
+      {/* Product Information Section */}
+      <div className="p-6 space-y-4">
+        <div>
+        <p className="text-sm text-gray-600">ref = {product.reference_product} </p>
+          <h2 className="text-xl font-bold text-gray-800">{product.nom_product} </h2>
+          <p className="text-sm text-gray-600">{product.description_product}</p>
+        </div>
+
+        {/* Price and Stock Status */}
+        <div className="flex justify-between items-center">
+          <span className="text-lg font-bold text-[#5a0c1a]">{formatPrice(product.price_product)}</span>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold ${stockMessage.color} ${stockMessage.bgColor}`}
+          >
+            {product.qnty_product} {parseInt(product.qnty_product) > 1 ? 'pièces' : 'pièce'}{' '}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <span className="px-2 py-1.5 bg-gray-100 text-xs font-small text-gray-700 rounded-full">
+            {product.type_product}
+          </span>
+          <span className="px-2 py-1.5 bg-blue-50 text-xs font-small text-blue-700 rounded-full">
+            {product.category_product}
+          </span>
+          <span className="px-2 py-1.5 bg-orange-50 text-xs font-small text-orange-700 rounded-full">
+            {product.itemgroup_product}
+          </span>
+        </div>
+
+        {/* Sizes */}
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div>
+            XS: <span>{product.xs_size}</span>
+          </div>
+          <div>
+            S: <span>{product.s_size}</span>
+          </div>
+          <div>
+            M: <span>{product.m_size}</span>
+          </div>
+          <div>
+            L: <span>{product.l_size}</span>
+          </div>
+          <div>
+            XL: <span>{product.xl_size}</span>
+          </div>
+          <div>
+            XXL: <span>{product.xxl_size}</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-between items-center px-6 py-4 border-t">
+        <button
+          onClick={() => onUpdate()}
+          className="flex items-center px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600"
+        >
+          <Edit className="w-4 h-4 mr-2" /> Modifier
+        </button>
+        <button
+          onClick={() => onDelete(product)}
+          className="flex items-center px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600"
+        ><Trash2 className="w-4 h-4 mr-2" /></button>
+      </div>
+    </div>
   );
 };
 

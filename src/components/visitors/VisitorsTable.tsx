@@ -1,111 +1,80 @@
-import React, { useState, useEffect } from "react";
-import { Visitor } from "../../types/visitors";
-import { calculateDailyVisits } from "../../utils/visitorStats";
+import React, { useState } from 'react';
+import { Search, ArrowUpDown } from 'lucide-react';
+import { Visitor } from '../../types/visitors';
 
-const VisitorsPage: React.FC = () => {
-  const [visitors, setVisitors] = useState<Visitor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+interface Props {
+  visitors: Visitor[];
+}
 
-  useEffect(() => {
-    const fetchVisitors = async () => {
-      try {
-        const response = await fetch(
-          "https://respizenmedical.com/fiori/get_visitors.php"
-        );
-        const result = await response.json();
+export const VisitorsTable: React.FC<Props> = ({ visitors }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Visitor;
+    direction: 'asc' | 'desc';
+  }>({ key: 'date_visitors', direction: 'desc' });
 
-        if (result.status === "success" && Array.isArray(result.data)) {
-          setVisitors(result.data);
-        } else {
-          throw new Error("Invalid data format");
-        }
-      } catch (err) {
-        setError("Failed to fetch visitors data");
-        console.error("Error fetching visitors:", err);
-      } finally {
-        setLoading(false);
+  const handleSort = (key: keyof Visitor) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const filteredVisitors = visitors
+    .filter(visitor => 
+      Object.values(visitor).some(value => 
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    )
+    .sort((a, b) => {
+      if (sortConfig.direction === 'asc') {
+        return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
       }
-    };
-
-    fetchVisitors();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 bg-red-50 text-red-500 rounded-lg text-center">
-        {error}
-      </div>
-    );
-  }
-
-  const dailyVisits = calculateDailyVisits(visitors);
-  const totalVisitors = visitors.length;
+      return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+    });
 
   return (
-    <div className="container mx-auto px-4 space-y-6">
-      <h2 className="text-2xl font-bold text-[#5a0c1a]">Visitors Analytics</h2>
-
-      {/* Total Visitors Count */}
-      <div className="p-4 bg-[#5a0c1a] text-white rounded-lg shadow">
-        <h3 className="text-lg font-semibold">Total Visitors</h3>
-        <p className="text-4xl font-bold mt-2">{totalVisitors}</p>
-      </div>
-
-      {/* Daily Visitors Statistics */}
-      <div className="p-4 bg-white shadow rounded-lg">
-        <h3 className="text-lg font-semibold text-[#5a0c1a]">
-          Daily Visitors Statistics
-        </h3>
-        <div className="mt-4 space-y-2">
-          {Object.entries(dailyVisits).map(([date, count]) => (
-            <div key={date} className="flex items-center justify-between">
-              <span>{new Date(date).toLocaleDateString()}</span>
-              <div className="flex-grow h-2 bg-gray-100 mx-4 rounded-full">
-                <div
-                  className="h-full bg-[#5a0c1a] rounded-full"
-                  style={{
-                    width: `${
-                      (count / Math.max(...Object.values(dailyVisits))) * 100
-                    }%`,
-                  }}
-                />
-              </div>
-              <span className="font-semibold">{count}</span>
-            </div>
-          ))}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="p-4 border-b border-gray-200">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search visitors..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5a0c1a]/20 focus:border-[#5a0c1a]"
+          />
         </div>
       </div>
 
-      {/* Visitors Table */}
-      <div className="overflow-x-auto rounded-lg shadow border border-gray-200">
-        <table className="min-w-full bg-white">
-          <thead className="bg-[#5a0c1a] text-white">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-2 px-4 text-left">Page</th>
-              <th className="py-2 px-4 text-left">City</th>
-              <th className="py-2 px-4 text-left">Country</th>
-              <th className="py-2 px-4 text-left">IP Address</th>
-              <th className="py-2 px-4 text-left">Date</th>
+              {['Page', 'City', 'Country', 'IP Address', 'Date'].map((header, index) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort(Object.keys(visitors[0])[index + 1] as keyof Visitor)}
+                >
+                  <div className="flex items-center gap-2">
+                    {header}
+                    <ArrowUpDown className="w-4 h-4" />
+                  </div>
+                </th>
+              ))}
             </tr>
           </thead>
-          <tbody>
-            {visitors.map((visitor) => (
-              <tr key={visitor.id_visitors} className="border-b">
-                <td className="py-2 px-4">{visitor.page_visitors}</td>
-                <td className="py-2 px-4">{visitor.city_visitors}</td>
-                <td className="py-2 px-4">{visitor.country_visitors}</td>
-                <td className="py-2 px-4">{visitor.ip_visitors}</td>
-                <td className="py-2 px-4">
-                  {new Date(visitor.date_visitors).toLocaleDateString()}
+          <tbody className="divide-y divide-gray-200">
+            {filteredVisitors.map((visitor) => (
+              <tr key={visitor.id_visitors} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">{visitor.page_visitors}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{visitor.city_visitors}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{visitor.country_visitors}</td>
+                <td className="px-6 py-4 whitespace-nowrap font-mono text-sm">{visitor.ip_visitors}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {new Date(visitor.date_visitors).toLocaleString()}
                 </td>
               </tr>
             ))}
@@ -115,5 +84,3 @@ const VisitorsPage: React.FC = () => {
     </div>
   );
 };
-
-export default VisitorsPage;
