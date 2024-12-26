@@ -1,39 +1,288 @@
 import React, { useState, useEffect } from 'react';
-import { FaSort, FaSearch, FaTrash, FaEye, FaFilePdf, FaTimes, FaCheckCircle, FaClock, FaBan } from 'react-icons/fa';
+import { FaSort, FaSearch, FaEye, FaFilePdf, FaTimes, FaCheckCircle, FaClock, FaTruck, FaBox } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import logo from '../assets/logo.png'; // You'll need to add your logo
 
-interface Order {
-  OrderId: string;
-  ProductsBought: string;
-  Quantity: string;
-  Total: string;
-  Status: string;
-  Comments: string;
-  DateOfCreation: string;
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  PhoneNumber: string;
-  Address: string;
-  ZipCode: string;
-  Country: string;
-  PaymentMethod: string;
+// Types
+interface UserDetails {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address: string;
+  country: string;
+  zip_code: string;
 }
 
+interface OrderItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  size: string;
+  color: string;
+}
+
+interface PriceDetails {
+  subtotal: number;
+  shipping_cost: number;
+  has_newsletter_discount: boolean;
+  newsletter_discount_amount: number;
+  final_total: number;
+}
+
+interface Payment {
+  method: string;
+  status: string;
+  konnect_payment_url: string | null;
+  completed_at: string | null;
+}
+
+interface OrderStatus {
+  status: string;
+  shipped_at: string | null;
+  delivered_at: string | null;
+}
+
+interface Order {
+  id: number;
+  order_id: string;
+  created_at: string;
+  user_details: UserDetails;
+  items: OrderItem[];
+  price_details: PriceDetails;
+  payment: Payment;
+  order_status: OrderStatus;
+  updated_at: string;
+}
+
+// Utility functions
+const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount);
+};
+
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+// Internal Components
+const OrderStatusTimeline: React.FC<{ orderStatus: OrderStatus }> = ({ orderStatus }) => {
+  const steps = [
+    { 
+      label: 'Processing', 
+      icon: FaBox, 
+      completed: true,
+      date: null 
+    },
+    { 
+      label: 'Shipped', 
+      icon: FaTruck, 
+      completed: !!orderStatus.shipped_at,
+      date: orderStatus.shipped_at
+    },
+    { 
+      label: 'Delivered', 
+      icon: FaCheckCircle, 
+      completed: !!orderStatus.delivered_at,
+      date: orderStatus.delivered_at
+    }
+  ];
+
+  return (
+    <div className="w-full py-4">
+      <div className="flex justify-between">
+        {steps.map((step, index) => (
+          <div key={step.label} className="flex flex-col items-center relative">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              step.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
+            }`}>
+              <step.icon className="w-5 h-5" />
+            </div>
+            <div className="text-sm font-medium mt-2">{step.label}</div>
+            {step.date && (
+              <div className="text-xs text-gray-500 mt-1">
+                {formatDate(step.date)}
+              </div>
+            )}
+            {index < steps.length - 1 && (
+              <div className={`absolute top-5 left-10 w-[calc(100%-2.5rem)] h-0.5 ${
+                steps[index + 1].completed ? 'bg-green-500' : 'bg-gray-200'
+              }`} />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
+  return (
+    <div className="bg-gray-50 rounded-lg p-6">
+      <h3 className="font-semibold text-lg text-[#700100] mb-4">Order Items</h3>
+      <div className="space-y-4">
+        {items.map(item => (
+          <div key={item.id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
+            <img 
+              src={item.image} 
+              alt={item.name}
+              className="w-20 h-20 object-cover rounded-md"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80';
+              }}
+            />
+            <div className="flex-1">
+              <h4 className="font-medium text-gray-900">{item.name}</h4>
+              <div className="text-sm text-gray-500 mt-1">
+                <span className="mr-4">Size: {item.size}</span>
+                <span>Color: {item.color}</span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-gray-600">Quantity: {item.quantity}</span>
+                <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const OrderDetailsModal: React.FC<{
+  order: Order;
+  onClose: () => void;
+  onGeneratePDF: () => void;
+}> = ({ order, onClose, onGeneratePDF }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-[#700100]">
+            Order {order.order_id}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <FaTimes className="text-gray-500" />
+          </button>
+        </div>
+
+        <div className="space-y-8">
+          <OrderStatusTimeline orderStatus={order.order_status} />
+
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Customer Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Name</p>
+                <p className="font-medium">{`${order.user_details.first_name} ${order.user_details.last_name}`}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Email</p>
+                <p className="font-medium">{order.user_details.email}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Phone</p>
+                <p className="font-medium">{order.user_details.phone}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Address</p>
+                <p className="font-medium">{`${order.user_details.address}, ${order.user_details.zip_code}, ${order.user_details.country}`}</p>
+              </div>
+            </div>
+          </div>
+
+          <OrderItemsList items={order.items} />
+
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Price Details</h3>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Subtotal</span>
+                <span className="font-medium">{formatCurrency(order.price_details.subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Shipping Cost</span>
+                <span className="font-medium">{formatCurrency(order.price_details.shipping_cost)}</span>
+              </div>
+              {order.price_details.has_newsletter_discount && (
+                <div className="flex justify-between text-green-600">
+                  <span>Newsletter Discount</span>
+                  <span>-{formatCurrency(order.price_details.newsletter_discount_amount)}</span>
+                </div>
+              )}
+              <div className="border-t pt-2 mt-2">
+                <div className="flex justify-between font-bold text-lg">
+                  <span>Total</span>
+                  <span>{formatCurrency(order.price_details.final_total)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Payment Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Payment Method</p>
+                <p className="font-medium capitalize">{order.payment.method}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Payment Status</p>
+                <p className="font-medium capitalize">{order.payment.status}</p>
+              </div>
+              {order.payment.completed_at && (
+                <div>
+                  <p className="text-sm text-gray-600">Payment Completed</p>
+                  <p className="font-medium">{formatDate(order.payment.completed_at)}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end gap-4">
+          <button
+            onClick={onGeneratePDF}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+          >
+            <FaFilePdf /> Generate PDF
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main Component
 const OrdersTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Order; direction: 'asc' | 'desc' }>({
-    key: 'DateOfCreation',
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({
+    key: 'created_at',
     direction: 'desc',
   });
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteConfirmModalOpen, setIsDeleteConfirmModalOpen] = useState(false);
-  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,17 +290,16 @@ const OrdersTable: React.FC = () => {
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://respizenmedical.com/fiori/get_orders.php');
+        const response = await fetch('https://respizenmedical.com/fiori/get_users_orders.php');
         const data = await response.json();
-
-        if (data.status === 'success') {
+        if (data.data) {
           setOrders(data.data);
           setFilteredOrders(data.data);
         } else {
-          setError(data.message);
+          setError('No orders found');
         }
       } catch (error) {
-        setError('Échec de la récupération des commandes.');
+        setError('Failed to fetch orders');
       } finally {
         setIsLoading(false);
       }
@@ -61,70 +309,26 @@ const OrdersTable: React.FC = () => {
 
   useEffect(() => {
     const filtered = orders.filter(order =>
-      ['FirstName', 'LastName', 'OrderId', 'Email'].some(key =>
-        (order[key as keyof Order] ?? '').toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      Object.values(order.user_details).some(value =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      ) || order.order_id.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredOrders(filtered);
   }, [searchTerm, orders]);
 
-  const handleSort = (key: keyof Order) => {
+  const handleSort = (key: string) => {
     const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
     setSortConfig({ key, direction });
 
     const sorted = [...filteredOrders].sort((a, b) => {
-      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+      let aValue = key.includes('.') ? key.split('.').reduce((obj, k) => obj[k], a) : a[key];
+      let bValue = key.includes('.') ? key.split('.').reduce((obj, k) => obj[k], b) : b[key];
+      
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
       return 0;
     });
     setFilteredOrders(sorted);
-  };
-
-  const handleDelete = async () => {
-    if (!orderToDelete) return;
-
-    try {
-      const response = await fetch('https://respizenmedical.com/fiori/delete_orders.php', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ OrderId: orderToDelete }),
-      });
-
-      const data = await response.json();
-      if (data.status === 'success') {
-        setOrders(prev => prev.filter(order => order.OrderId !== orderToDelete));
-        setFilteredOrders(prev => prev.filter(order => order.OrderId !== orderToDelete));
-        setOrderToDelete(null);
-        setIsDeleteConfirmModalOpen(false);
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      alert('Échec de la suppression de la commande.');
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'paid':
-        return <FaCheckCircle className="text-green-500" />;
-      case 'pending':
-        return <FaClock className="text-yellow-500" />;
-      case 'cancelled':
-        return <FaBan className="text-red-500" />;
-      default:
-        return null;
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   const generatePDF = (order: Order) => {
@@ -135,7 +339,7 @@ const OrdersTable: React.FC = () => {
     doc.setFillColor(112, 0, 0);
     doc.rect(0, 0, pageWidth, 40, 'F');
     
-    // Company Logo & Info
+    // Company Info
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.text('COMPANY NAME', 20, 25);
@@ -143,30 +347,35 @@ const OrdersTable: React.FC = () => {
     // Order Info
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(20);
-    doc.text(`Commande #${order.OrderId}`, 20, 60);
+    doc.text(`Order ${order.order_id}`, 20, 60);
     
-    // Customer Details Section
+    // Customer Details
     doc.setFontSize(12);
     doc.setTextColor(112, 0, 0);
-    doc.text('INFORMATIONS CLIENT', 20, 80);
+    doc.text('CUSTOMER INFORMATION', 20, 80);
     doc.setTextColor(0, 0, 0);
-    doc.text(`${order.FirstName} ${order.LastName}`, 20, 90);
-    doc.text(order.Address, 20, 100);
-    doc.text(`${order.ZipCode}, ${order.Country}`, 20, 110);
-    doc.text(`Email: ${order.Email}`, 20, 120);
-    doc.text(`Tél: ${order.PhoneNumber}`, 20, 130);
+    doc.text(`${order.user_details.first_name} ${order.user_details.last_name}`, 20, 90);
+    doc.text(order.user_details.address, 20, 100);
+    doc.text(`${order.user_details.zip_code}, ${order.user_details.country}`, 20, 110);
+    doc.text(`Email: ${order.user_details.email}`, 20, 120);
+    doc.text(`Phone: ${order.user_details.phone}`, 20, 130);
 
-    // Order Details
+    // Order Items
     doc.setTextColor(112, 0, 0);
-    doc.text('DÉTAILS DE LA COMMANDE', 20, 150);
+    doc.text('ORDER ITEMS', 20, 150);
     
-    // Products Table
-    const products = order.ProductsBought.split(', ');
-    const tableData = products.map(product => [product, '1', order.Total]);
+    const tableData = order.items.map(item => [
+      item.name,
+      item.size,
+      item.color,
+      item.quantity.toString(),
+      formatCurrency(item.price),
+      formatCurrency(item.price * item.quantity)
+    ]);
     
     doc.autoTable({
       startY: 160,
-      head: [['Produit', 'Quantité', 'Prix']],
+      head: [['Product', 'Size', 'Color', 'Quantity', 'Price', 'Total']],
       body: tableData,
       theme: 'grid',
       headStyles: { 
@@ -180,16 +389,47 @@ const OrdersTable: React.FC = () => {
       }
     });
 
-    // Footer
+    // Price Details
     const finalY = (doc as any).lastAutoTable.finalY + 20;
     doc.setFontSize(10);
-    doc.setTextColor(128, 128, 128);
-    doc.text(`Date de commande: ${formatDate(order.DateOfCreation)}`, 20, finalY);
-    doc.text(`Méthode de paiement: ${order.PaymentMethod}`, 20, finalY + 10);
-    doc.text(`Status: ${order.Status}`, 20, finalY + 20);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Subtotal: ${formatCurrency(order.price_details.subtotal)}`, 20, finalY);
+    doc.text(`Shipping Cost: ${formatCurrency(order.price_details.shipping_cost)}`, 20, finalY + 10);
+    if (order.price_details.has_newsletter_discount) {
+      doc.text(`Newsletter Discount: -${formatCurrency(order.price_details.newsletter_discount_amount)}`, 20, finalY + 20);
+    }
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Final Total: ${formatCurrency(order.price_details.final_total)}`, 20, finalY + 35);
 
     // Save PDF
-    doc.save(`Commande_${order.OrderId}.pdf`);
+    doc.save(`Order_${order.order_id}.pdf`);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return <FaCheckCircle className="text-green-500" />;
+      case 'processing':
+        return <FaClock className="text-yellow-500" />;
+      case 'shipped':
+        return <FaTruck className="text-blue-500" />;
+      default:
+        return <FaBox className="text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return 'bg-green-100 text-green-800';
+      case 'processing':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'shipped':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (isLoading) return (
@@ -201,7 +441,7 @@ const OrdersTable: React.FC = () => {
   if (error) return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Erreur!</strong>
+        <strong className="font-bold">Error!</strong>
         <span className="block sm:inline"> {error}</span>
       </div>
     </div>
@@ -209,13 +449,12 @@ const OrdersTable: React.FC = () => {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-md p-6">
-      {/* Search and Filters */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex-1 relative">
           <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Rechercher par nom, email ou ID..."
+            placeholder="Search by order ID, name, or email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#700100] bg-gray-50"
@@ -223,33 +462,32 @@ const OrdersTable: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-[#700100]">
             <tr>
-              <th onClick={() => handleSort('OrderId')} 
+              <th onClick={() => handleSort('order_id')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
-                  N° Commande
+                  Order ID
                   <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
-              <th onClick={() => handleSort('FirstName')} 
+              <th onClick={() => handleSort('user_details.first_name')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
-                  Client
+                  Customer
                   <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
-              <th onClick={() => handleSort('Status')} 
+              <th onClick={() => handleSort('order_status.status')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
                   Status
                   <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
-              <th onClick={() => handleSort('Total')} 
+              <th onClick={() => handleSort('price_details.final_total')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
                   Total
@@ -263,30 +501,28 @@ const OrdersTable: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredOrders.map(order => (
-              <tr key={order.OrderId} className="hover:bg-gray-50 transition-colors">
+              <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #{order.OrderId}
+                  {order.order_id}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex flex-col">
-                    <span className="font-medium text-gray-900">{`${order.FirstName} ${order.LastName}`}</span>
-                    <span className="text-xs text-gray-500">{order.Email}</span>
+                    <span className="font-medium text-gray-900">
+                      {`${order.user_details.first_name} ${order.user_details.last_name}`}
+                    </span>
+                    <span className="text-xs text-gray-500">{order.user_details.email}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">
-                    {getStatusIcon(order.Status)}
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      order.Status.toLowerCase() === 'paid' ? 'bg-green-100 text-green-800' :
-                      order.Status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {order.Status}
+                    {getStatusIcon(order.order_status.status)}
+                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.order_status.status)}`}>
+                      {order.order_status.status.charAt(0).toUpperCase() + order.order_status.status.slice(1)}
                     </span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(parseFloat(order.Total))}
+                  {formatCurrency(order.price_details.final_total)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex gap-2">
@@ -296,26 +532,16 @@ const OrdersTable: React.FC = () => {
                         setIsModalOpen(true);
                       }}
                       className="p-2 bg-[#700100] text-white rounded-lg hover:bg-red-800 transition-colors"
-                      title="Voir les détails"
+                      title="View Details"
                     >
                       <FaEye />
                     </button>
                     <button
                       onClick={() => generatePDF(order)}
                       className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                      title="Générer PDF"
+                      title="Generate PDF"
                     >
                       <FaFilePdf />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setOrderToDelete(order.OrderId);
-                        setIsDeleteConfirmModalOpen(true);
-                      }}
-                      className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                      title="Supprimer"
-                    >
-                      <FaTrash />
                     </button>
                   </div>
                 </td>
@@ -325,107 +551,12 @@ const OrdersTable: React.FC = () => {
         </table>
       </div>
 
-      {/* Order Details Modal */}
       {isModalOpen && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#700100]">
-                Commande #{selectedOrder.OrderId}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <FaTimes className="text-gray-500" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Customer Information */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg text-[#700100]">Informations Client</h3>
-                <div className="space-y-2">
-                  <p><span className="font-medium">Nom:</span> {selectedOrder.FirstName} {selectedOrder.LastName}</p>
-                  <p><span className="font-medium">Email:</span> {selectedOrder.Email}</p>
-                  <p><span className="font-medium">Téléphone:</span> {selectedOrder.PhoneNumber}</p>
-                  <p><span className="font-medium">Adresse:</span> {selectedOrder.Address}</p>
-                  <p><span className="font-medium">Code Postal:</span> {selectedOrder.ZipCode}</p>
-                  <p><span className="font-medium">Pays:</span> {selectedOrder.Country}</p>
-                </div>
-              </div>
-
-              {/* Order Information */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-lg text-[#700100]">Détails de la Commande</h3>
-                <div className="space-y-2">
-                  <p><span className="font-medium">Produits:</span> {selectedOrder.ProductsBought}</p>
-                  <p><span className="font-medium">Quantité:</span> {selectedOrder.Quantity}</p>
-                  <p><span className="font-medium">Total:</span> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(parseFloat(selectedOrder.Total))}</p>
-                  <p><span className="font-medium">Méthode de Paiement:</span> {selectedOrder.PaymentMethod}</p>
-                  <p><span className="font-medium">Date:</span> {formatDate(selectedOrder.DateOfCreation)}</p>
-                  <p><span className="font-medium">Status:</span> 
-                    <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                      selectedOrder.Status.toLowerCase() === 'paid' ? 'bg-green-100 text-green-800' :
-                      selectedOrder.Status.toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {selectedOrder.Status}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Comments Section */}
-            {selectedOrder.Comments && (
-              <div className="mt-6">
-                <h3 className="font-semibold text-lg text-[#700100] mb-2">Commentaires</h3>
-                <p className="text-gray-600">{selectedOrder.Comments}</p>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="mt-6 flex justify-end gap-4">
-              <button
-                onClick={() => generatePDF(selectedOrder)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                <FaFilePdf /> Générer PDF
-              </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Fermer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {isDeleteConfirmModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Confirmer la suppression</h2>
-            <p className="text-gray-600 mb-6">Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.</p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setIsDeleteConfirmModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
-              >
-                <FaTrash /> Supprimer
-              </button>
-            </div>
-          </div>
-        </div>
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setIsModalOpen(false)}
+          onGeneratePDF={() => generatePDF(selectedOrder)}
+        />
       )}
     </div>
   );
