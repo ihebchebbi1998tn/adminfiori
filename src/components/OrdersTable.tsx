@@ -180,8 +180,6 @@ const OrderDetailsModal: React.FC<{
         </div>
 
         <div className="space-y-8">
-          <OrderStatusTimeline orderStatus={order.order_status} />
-
           <div className="bg-gray-50 rounded-lg p-6">
             <h3 className="font-semibold text-lg text-[#700100] mb-4">Customer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
