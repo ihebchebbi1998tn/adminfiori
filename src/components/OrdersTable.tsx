@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSort, FaSearch, FaEye, FaFilePdf, FaTimes, FaCheckCircle, FaClock, FaTruck, FaBox } from 'react-icons/fa';
+import { Search, SortAsc, Eye, FileText, X, CheckCircle, Clock, Truck, Package } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
@@ -59,9 +59,9 @@ interface Order {
 
 // Utility functions
 const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('fr-FR', {
+  return new Intl.NumberFormat('fr-TN', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'TND'
   }).format(amount);
 };
 
@@ -79,20 +79,20 @@ const formatDate = (dateString: string): string => {
 const OrderStatusTimeline: React.FC<{ orderStatus: OrderStatus }> = ({ orderStatus }) => {
   const steps = [
     { 
-      label: 'Processing', 
-      icon: FaBox, 
+      label: 'En traitement', 
+      icon: Package, 
       completed: true,
       date: null 
     },
     { 
-      label: 'Shipped', 
-      icon: FaTruck, 
+      label: 'Expédié', 
+      icon: Truck, 
       completed: !!orderStatus.shipped_at,
       date: orderStatus.shipped_at
     },
     { 
-      label: 'Delivered', 
-      icon: FaCheckCircle, 
+      label: 'Livré', 
+      icon: CheckCircle, 
       completed: !!orderStatus.delivered_at,
       date: orderStatus.delivered_at
     }
@@ -129,7 +129,7 @@ const OrderStatusTimeline: React.FC<{ orderStatus: OrderStatus }> = ({ orderStat
 const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
   return (
     <div className="bg-gray-50 rounded-lg p-6">
-      <h3 className="font-semibold text-lg text-[#700100] mb-4">Order Items</h3>
+      <h3 className="font-semibold text-lg text-[#700100] mb-4">Articles commandés</h3>
       <div className="space-y-4">
         {items.map(item => (
           <div key={item.id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
@@ -144,11 +144,11 @@ const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
             <div className="flex-1">
               <h4 className="font-medium text-gray-900">{item.name}</h4>
               <div className="text-sm text-gray-500 mt-1">
-                <span className="mr-4">Size: {item.size}</span>
-                <span>Color: {item.color}</span>
+                <span className="mr-4">Taille: {item.size}</span>
+                <span>Couleur: {item.color}</span>
               </div>
               <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-600">Quantity: {item.quantity}</span>
+                <span className="text-sm text-gray-600">Quantité: {item.quantity}</span>
                 <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
               </div>
             </div>
@@ -169,22 +169,22 @@ const OrderDetailsModal: React.FC<{
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-[#700100]">
-            Order {order.order_id}
+            Commande {order.order_id}
           </h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <FaTimes className="text-gray-500" />
+            <X className="text-gray-500" />
           </button>
         </div>
 
         <div className="space-y-8">
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Customer Information</h3>
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Informations client</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Name</p>
+                <p className="text-sm text-gray-600">Nom</p>
                 <p className="font-medium">{`${order.user_details.first_name} ${order.user_details.last_name}`}</p>
               </div>
               <div>
@@ -192,11 +192,11 @@ const OrderDetailsModal: React.FC<{
                 <p className="font-medium">{order.user_details.email}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Phone</p>
+                <p className="text-sm text-gray-600">Téléphone</p>
                 <p className="font-medium">{order.user_details.phone}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Address</p>
+                <p className="text-sm text-gray-600">Adresse</p>
                 <p className="font-medium">{`${order.user_details.address}, ${order.user_details.zip_code}, ${order.user_details.country}`}</p>
               </div>
             </div>
@@ -205,19 +205,19 @@ const OrderDetailsModal: React.FC<{
           <OrderItemsList items={order.items} />
 
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Price Details</h3>
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Détails du prix</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-600">Sous-total</span>
                 <span className="font-medium">{formatCurrency(order.price_details.subtotal)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Shipping Cost</span>
+                <span className="text-gray-600">Frais de livraison</span>
                 <span className="font-medium">{formatCurrency(order.price_details.shipping_cost)}</span>
               </div>
               {order.price_details.has_newsletter_discount && (
                 <div className="flex justify-between text-green-600">
-                  <span>Newsletter Discount</span>
+                  <span>Réduction newsletter</span>
                   <span>-{formatCurrency(order.price_details.newsletter_discount_amount)}</span>
                 </div>
               )}
@@ -231,19 +231,19 @@ const OrderDetailsModal: React.FC<{
           </div>
 
           <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Payment Information</h3>
+            <h3 className="font-semibold text-lg text-[#700100] mb-4">Informations de paiement</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Payment Method</p>
+                <p className="text-sm text-gray-600">Méthode de paiement</p>
                 <p className="font-medium capitalize">{order.payment.method}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Payment Status</p>
+                <p className="text-sm text-gray-600">Statut du paiement</p>
                 <p className="font-medium capitalize">{order.payment.status}</p>
               </div>
               {order.payment.completed_at && (
                 <div>
-                  <p className="text-sm text-gray-600">Payment Completed</p>
+                  <p className="text-sm text-gray-600">Paiement effectué le</p>
                   <p className="font-medium">{formatDate(order.payment.completed_at)}</p>
                 </div>
               )}
@@ -256,13 +256,13 @@ const OrderDetailsModal: React.FC<{
             onClick={onGeneratePDF}
             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
           >
-            <FaFilePdf /> Generate PDF
+            <FileText className="w-4 h-4" /> Générer PDF
           </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
           >
-            Close
+            Fermer
           </button>
         </div>
       </div>
@@ -294,10 +294,10 @@ const OrdersTable: React.FC = () => {
           setOrders(data.data);
           setFilteredOrders(data.data);
         } else {
-          setError('No orders found');
+          setError('Aucune commande trouvée');
         }
       } catch (error) {
-        setError('Failed to fetch orders');
+        setError('Échec du chargement des commandes');
       } finally {
         setIsLoading(false);
       }
@@ -340,27 +340,27 @@ const OrdersTable: React.FC = () => {
     // Company Info
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
-    doc.text('COMPANY NAME', 20, 25);
+    doc.text('NOM DE LA SOCIÉTÉ', 20, 25);
     
     // Order Info
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(20);
-    doc.text(`Order ${order.order_id}`, 20, 60);
+    doc.text(`Commande ${order.order_id}`, 20, 60);
     
     // Customer Details
     doc.setFontSize(12);
     doc.setTextColor(112, 0, 0);
-    doc.text('CUSTOMER INFORMATION', 20, 80);
+    doc.text('INFORMATIONS CLIENT', 20, 80);
     doc.setTextColor(0, 0, 0);
     doc.text(`${order.user_details.first_name} ${order.user_details.last_name}`, 20, 90);
     doc.text(order.user_details.address, 20, 100);
     doc.text(`${order.user_details.zip_code}, ${order.user_details.country}`, 20, 110);
     doc.text(`Email: ${order.user_details.email}`, 20, 120);
-    doc.text(`Phone: ${order.user_details.phone}`, 20, 130);
+    doc.text(`Téléphone: ${order.user_details.phone}`, 20, 130);
 
     // Order Items
     doc.setTextColor(112, 0, 0);
-    doc.text('ORDER ITEMS', 20, 150);
+    doc.text('ARTICLES COMMANDÉS', 20, 150);
     
     const tableData = order.items.map(item => [
       item.name,
@@ -373,7 +373,7 @@ const OrdersTable: React.FC = () => {
     
     doc.autoTable({
       startY: 160,
-      head: [['Product', 'Size', 'Color', 'Quantity', 'Price', 'Total']],
+      head: [['Produit', 'Taille', 'Couleur', 'Quantité', 'Prix', 'Total']],
       body: tableData,
       theme: 'grid',
       headStyles: { 
@@ -391,29 +391,29 @@ const OrdersTable: React.FC = () => {
     const finalY = (doc as any).lastAutoTable.finalY + 20;
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Subtotal: ${formatCurrency(order.price_details.subtotal)}`, 20, finalY);
-    doc.text(`Shipping Cost: ${formatCurrency(order.price_details.shipping_cost)}`, 20, finalY + 10);
+    doc.text(`Sous-total: ${formatCurrency(order.price_details.subtotal)}`, 20, finalY);
+    doc.text(`Frais de livraison: ${formatCurrency(order.price_details.shipping_cost)}`, 20, finalY + 10);
     if (order.price_details.has_newsletter_discount) {
-      doc.text(`Newsletter Discount: -${formatCurrency(order.price_details.newsletter_discount_amount)}`, 20, finalY + 20);
+      doc.text(`Réduction newsletter: -${formatCurrency(order.price_details.newsletter_discount_amount)}`, 20, finalY + 20);
     }
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
-    doc.text(`Final Total: ${formatCurrency(order.price_details.final_total)}`, 20, finalY + 35);
+    doc.text(`Total final: ${formatCurrency(order.price_details.final_total)}`, 20, finalY + 35);
 
     // Save PDF
-    doc.save(`Order_${order.order_id}.pdf`);
+    doc.save(`Commande_${order.order_id}.pdf`);
   };
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case 'delivered':
-        return <FaCheckCircle className="text-green-500" />;
+        return <CheckCircle className="text-green-500" />;
       case 'processing':
-        return <FaClock className="text-yellow-500" />;
+        return <Clock className="text-yellow-500" />;
       case 'shipped':
-        return <FaTruck className="text-blue-500" />;
+        return <Truck className="text-blue-500" />;
       default:
-        return <FaBox className="text-gray-500" />;
+        return <Package className="text-gray-500" />;
     }
   };
 
@@ -430,6 +430,19 @@ const OrdersTable: React.FC = () => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'delivered':
+        return 'Livré';
+      case 'processing':
+        return 'En traitement';
+      case 'shipped':
+        return 'Expédié';
+      default:
+        return status;
+    }
+  };
+
   if (isLoading) return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#700100]"></div>
@@ -439,7 +452,7 @@ const OrdersTable: React.FC = () => {
   if (error) return (
     <div className="flex justify-center items-center min-h-screen">
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Error!</strong>
+        <strong className="font-bold">Erreur!</strong>
         <span className="block sm:inline"> {error}</span>
       </div>
     </div>
@@ -449,10 +462,10 @@ const OrdersTable: React.FC = () => {
     <div className="bg-white rounded-xl border border-gray-200 shadow-md p-6">
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex-1 relative">
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by order ID, name, or email..."
+            placeholder="Rechercher par ID de commande, nom ou email..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#700100] bg-gray-50"
@@ -467,29 +480,29 @@ const OrdersTable: React.FC = () => {
               <th onClick={() => handleSort('order_id')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
-                  Order ID
-                  <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  ID Commande
+                  <SortAsc className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
               <th onClick={() => handleSort('user_details.first_name')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
-                  Customer
-                  <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Client
+                  <SortAsc className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
               <th onClick={() => handleSort('order_status.status')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
-                  Status
-                  <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  Statut
+                  <SortAsc className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
               <th onClick={() => handleSort('price_details.final_total')} 
                   className="group px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider cursor-pointer">
                 <div className="flex items-center gap-2">
                   Total
-                  <FaSort className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <SortAsc className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -515,7 +528,7 @@ const OrdersTable: React.FC = () => {
                   <div className="flex items-center gap-2">
                     {getStatusIcon(order.order_status.status)}
                     <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(order.order_status.status)}`}>
-                      {order.order_status.status.charAt(0).toUpperCase() + order.order_status.status.slice(1)}
+                      {getStatusText(order.order_status.status)}
                     </span>
                   </div>
                 </td>
@@ -530,16 +543,16 @@ const OrdersTable: React.FC = () => {
                         setIsModalOpen(true);
                       }}
                       className="p-2 bg-[#700100] text-white rounded-lg hover:bg-red-800 transition-colors"
-                      title="View Details"
+                      title="Voir les détails"
                     >
-                      <FaEye />
+                      <Eye className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => generatePDF(order)}
                       className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                      title="Generate PDF"
+                      title="Générer PDF"
                     >
-                      <FaFilePdf />
+                      <FileText className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
