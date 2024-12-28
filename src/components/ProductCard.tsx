@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Trash2, ChevronLeft, ChevronRight, X, Calendar, Package, Tag, Layers } from 'lucide-react';
+import { Trash2, ChevronLeft, ChevronRight, X, Calendar, Package, Tag, Layers, Edit } from 'lucide-react';
 import { Product } from '../../types/products';
-
+import EditProductForm from './EditProductForm';
 interface ProductCardProps {
   product: Product;
   onUpdate: () => void;
@@ -175,6 +175,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
   const [currentImage, setCurrentImage] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const images = [product.img_product, product.img2_product, product.img3_product, product.img4_product].filter(Boolean);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const stockStatus = parseInt(product.qnty_product);
   const stockDisplay = stockStatus > 10 
@@ -255,6 +256,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
                 currency: 'TND'
               }).format(Number(product.price_product))}
             </span>
+            <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowEditForm(true);
+              }}
+              className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+            >
+              <Edit className="w-4 h-4" />
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -265,6 +276,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
+          </div>
         </div>
       </div>
 
@@ -272,6 +284,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
         <ProductDetailModal
           product={product}
           onClose={() => setShowDetails(false)}
+        />
+      )}
+
+{showEditForm && (
+        <EditProductForm
+          product={product}
+          onClose={() => setShowEditForm(false)}
+          onSuccess={() => {
+            setShowEditForm(false);
+            onUpdate();
+          }}
         />
       )}
     </>

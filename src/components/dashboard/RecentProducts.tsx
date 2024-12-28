@@ -48,7 +48,7 @@ const RecentProducts: React.FC<{ products: Product[] }> = ({ products }) => {
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-semibold">€{parseFloat(product.price_product).toLocaleString()}</p>
+                <p className="font-semibold">{parseFloat(product.price_product).toLocaleString()} TND</p>
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   product.status_product === 'En stock' 
                     ? 'bg-green-100 text-green-800'

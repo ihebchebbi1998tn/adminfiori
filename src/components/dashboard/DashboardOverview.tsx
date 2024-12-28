@@ -78,7 +78,7 @@ const DashboardOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Revenue"
-          value={`€${totalRevenue.toLocaleString()}`}
+          value={`- tnd`}
           icon={<DollarSign className="w-6 h-6 text-[#5a0c1a]" />}
         />
         <StatCard
