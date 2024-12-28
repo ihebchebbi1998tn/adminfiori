@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, Loader } from 'lucide-react';
 
+// Define the Product type interface
 interface Product {
   id_product: number;
   reference_product: string;
@@ -26,6 +27,7 @@ interface Product {
   related_products: string;
 }
 
+// EditProductForm Component
 interface EditProductFormProps {
   product: Product;
   onClose: () => void;
@@ -206,42 +208,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
               ))}
             </div>
 
-            {/* Image uploads */}
-            <div className="md:col-span-2 space-y-4">
-              <h3 className="font-medium">Images du produit</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {['img_product', 'img2_product', 'img3_product', 'img4_product'].map((key, index) => (
-                  <div key={key} className="space-y-2">
-                    <label className="block text-sm font-medium">Image {index + 1}</label>
-                    <div className="relative">
-                      <input
-                        type="file"
-                        onChange={(e) => handleImageChange(e, key)}
-                        accept="image/*"
-                        className="hidden"
-                        id={`image-${index}`}
-                      />
-                      <label
-                        htmlFor={`image-${index}`}
-                        className="block w-full aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-[#5a0c1a] transition-colors cursor-pointer"
-                      >
-                        {formData[key as keyof Product] ? (
-                          <img
-                            src={`https://respizenmedical.com/fiori/${formData[key as keyof Product]}`}
-                            alt=""
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        ) : (
-                          <div className="h-full flex items-center justify-center">
-                            <Upload className="w-6 h-6 text-gray-400" />
-                          </div>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+     
           </div>
 
           {error && (
