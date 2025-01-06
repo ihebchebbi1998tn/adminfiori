@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Trash2, ChevronLeft, ChevronRight, X, Calendar, Package, Tag, Layers, Edit } from 'lucide-react';
+import { Trash2, ChevronLeft, ChevronRight, X, Calendar, Package, Tag, Layers, Edit,ImageIcon } from 'lucide-react';
 import { Product } from '../../types/products';
 import EditProductForm from './EditProductForm';
+import ProductImageManager from './ProductImageManager';
+
 interface ProductCardProps {
   product: Product;
   onUpdate: () => void;
@@ -176,7 +178,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
   const [showDetails, setShowDetails] = useState(false);
   const images = [product.img_product, product.img2_product, product.img3_product, product.img4_product].filter(Boolean);
   const [showEditForm, setShowEditForm] = useState(false);
-
+  const [showImageManager, setShowImageManager] = useState(false);
   const stockStatus = parseInt(product.qnty_product);
   const stockDisplay = stockStatus > 10 
     ? { text: 'In Stock', color: 'text-green-600', bg: 'bg-green-50' }
@@ -260,6 +262,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                setShowImageManager(true);
+              }}
+              className="p-1 text-purple-500 hover:bg-purple-50 rounded transition-colors"
+              title="Gérer les images"
+            >
+              <ImageIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowEditForm(true);
               }}
               className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
@@ -293,6 +305,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
           onClose={() => setShowEditForm(false)}
           onSuccess={() => {
             setShowEditForm(false);
+            onUpdate();
+          }}
+        />
+      )}
+
+
+{showImageManager && (
+        <ProductImageManager
+          product={product}
+          onClose={() => setShowImageManager(false)}
+          onSuccess={() => {
+            setShowImageManager(false);
             onUpdate();
           }}
         />
