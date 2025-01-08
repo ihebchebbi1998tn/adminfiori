@@ -16,7 +16,7 @@ interface Product {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
-  xs_size: number;
+  2xxl_size: number;
   s_size: number;
   m_size: number;
   l_size: number;
@@ -193,7 +193,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
 
             {/* Size inputs */}
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-              {['xs', 's', 'm', 'l', 'xl', 'xxl'].map(size => (
+              {['s', 'm', 'l', 'xl', 'xxl','2xxl',].map(size => (
                 <div key={size}>
                   <label className="block text-sm font-medium mb-1">Taille {size.toUpperCase()}</label>
                   <input
