@@ -15,7 +15,7 @@ interface ProductFormData {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
-  xs_size: string;
+  xxl2_size: string;
   s_size: string;
   m_size: string;
   l_size: string;
@@ -129,7 +129,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     itemgroup_product: '',
     price_product: '',
     qnty_product: '',
-    xs_size: '',
+    xxl2_size: '',
     s_size: '',
     m_size: '',
     l_size: '',
@@ -417,7 +417,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
               <div className="md:col-span-2">
                 <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                  {['xs', 's', 'm', 'l', 'xl', 'xxl'].map(size => (
+                  {['s', 'm', 'l', 'xl', 'xxl' ,'xxl2'].map(size => (
                     <div key={size}>
                       <label htmlFor={`${size}_size`} className={labelClassName}>{size.toUpperCase()}</label>
                       <input
