@@ -12,7 +12,7 @@ interface ProductCardProps {
 
 // Product Size Table Component
 const ProductSizeTable: React.FC<{ product: Product }> = ({ product }) => {
-  const sizes = ['S', 'M', 'L', 'XL', 'XXL','XXL2'];
+  const sizes = ['S', 'M', 'L', 'XL', 'XXL','3XL'];
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">
@@ -243,7 +243,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
           </div>
 
           <div className="grid grid-cols-6 gap-0.5 text-[10px] bg-gray-50 p-1 rounded">
-            {['S', 'M', 'L', 'XL', 'XXL' ,'XXL2'].map((size) => (
+            {['S', 'M', 'L', 'XL', 'XXL' ,'3XL'].map((size) => (
               <div key={size} className="text-center">
                 <div className="font-medium text-gray-600">{size}</div>
                 <div className="bg-white rounded">{product[`${size.toLowerCase()}_size` as keyof Product]}</div>

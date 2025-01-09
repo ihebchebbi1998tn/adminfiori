@@ -73,7 +73,7 @@ function App() {
           {activePage === 'visitors' && <VisitorsPage />}
           {activePage === 'settings' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#5a0c1a]">Settings</h2>
+              <h2 className="text-2xl font-bold text-[#5a0c1a]">Fiori Settings</h2>
               <SettingsForm />
             </div>
           )}

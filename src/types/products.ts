@@ -12,7 +12,7 @@ export interface Product {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
-  xxl2_size: string;
+  "3xl_size": string;
   s_size: string;
   m_size: string;
   l_size: string;
