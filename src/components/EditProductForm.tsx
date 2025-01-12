@@ -22,6 +22,12 @@ interface Product {
   l_size: number;
   xl_size: number;
   xxl_size: number;
+  "48_size": string;
+  "50_size": string;
+  "52_size": string;
+  "54_size": string;
+  "56_size": string;
+  "58_size": string;
   color_product: string;
   status_product: string;
   related_products: string;
@@ -55,14 +61,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, imageKey: string) => {
-    if (e.target.files && e.target.files[0]) {
-      setImages(prev => ({
-        ...prev,
-        [imageKey]: e.target.files![0]
-      }));
-    }
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,26 +189,42 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
                 className="w-full p-2 border rounded-lg"
               />
             </div>
-
-            {/* Size inputs */}
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-              {['s', 'm', 'l', 'xl', 'xxl','3xl',].map(size => (
-                <div key={size}>
-                  <label className="block text-sm font-medium mb-1">Taille {size.toUpperCase()}</label>
-                  <input
-                    type="number"
-                    name={`${size}_size`}
-                    value={formData[`${size}_size` as keyof Product]}
-                    onChange={handleChange}
-                    min="0"
-                    className="w-full p-2 border rounded-lg"
-                  />
-                </div>
-              ))}
-            </div>
+  {formData.itemgroup_product === 'costumes'
+    ? ['58', '50', '52', '54', '56'].map((size) => (
+        <div key={size}>
+          <label className="block text-sm font-medium mb-1">Taille {size}</label>
+          <input
+            type="number"
+            name={`${size}_size`}
+            value={formData[`${size}_size` as keyof Product] || ''}
+            onChange={handleChange}
+            min="0"
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+      ))
+    : ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
+        <div key={size}>
+          <label className="block text-sm font-medium mb-1">Taille {size}</label>
+          <input
+            type="number"
+            name={`${size.toLowerCase()}_size`}
+            value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
+            onChange={handleChange}
+            min="0"
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+      ))}
+</div>
 
-     
-          </div>
+
+
+           
+
+</div>
+
 
           {error && (
             <div className="bg-red-50 text-red-500 p-3 rounded-lg">
