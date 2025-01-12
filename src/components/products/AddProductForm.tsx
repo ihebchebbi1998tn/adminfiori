@@ -15,10 +15,9 @@ interface ValidationError {
 const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<ValidationError | null>(null);
+  const [groupArticle, setGroupArticle] = useState('');
 
-  // Basic form validation
   const validateForm = (formData: FormData): ValidationError | null => {
-    // Check required fields
     const requiredFields = [
       'reference_product',
       'nom_product',
@@ -31,6 +30,12 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
       'img_product'
     ];
 
+    if (groupArticle === 'Costumes') {
+      requiredFields.push('48_size', '50_size', '52_size', '54_size', '56_size', '58_size');
+    } else {
+      requiredFields.push('s_size', 'm_size', 'l_size', 'xl_size', 'xxl_size');
+    }
+
     for (const field of requiredFields) {
       const value = formData.get(field);
       if (!value || (typeof value === 'string' && value.trim() === '')) {
@@ -41,7 +46,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
       }
     }
 
-    // Validate price format
     const price = formData.get('price_product') as string;
     if (!/^\d*\.?\d*$/.test(price)) {
       return {
@@ -50,7 +54,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
       };
     }
 
-    // Validate quantity format
     const quantity = formData.get('qnty_product') as string;
     if (!/^\d+$/.test(quantity)) {
       return {
@@ -59,7 +62,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
       };
     }
 
-    // Validate image
     const imageFile = formData.get('img_product') as File;
     if (imageFile instanceof File) {
       const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
@@ -70,8 +72,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
         };
       }
 
-      // Check file size (e.g., max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 5 * 1024 * 1024;
       if (imageFile.size > maxSize) {
         return {
           field: 'img_product',
@@ -90,8 +91,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    
+    setGroupArticle(formData.get('group_article') as string);
 
-    // Validate form before submission
     const validationError = validateForm(formData);
     if (validationError) {
       setError(validationError);
@@ -105,27 +107,20 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
         body: formData,
       });
 
-      // Log response headers for debugging
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       let responseData;
-      const contentType = response.headers.get("content-type");
       const responseText = await response.text();
 
       try {
-        // Try to parse as JSON even if content-type is not explicitly JSON
         responseData = JSON.parse(responseText);
       } catch (e) {
-        console.error('Failed to parse response as JSON:', responseText);
         throw new Error('Invalid response format from server');
       }
 
       if (responseData.status === 'success') {
-        // Show success message before closing
         onSuccess();
         onClose();
       } else {
@@ -134,7 +129,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
         });
       }
     } catch (err) {
-      console.error('Error details:', err);
       setError({
         message: err instanceof Error ? err.message : 'An error occurred while adding the product'
       });
@@ -149,20 +143,41 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
         <FormHeader title="Add New Product" onClose={onClose} />
         
         <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+          <select 
+            name="group_article" 
+            onChange={(e) => setGroupArticle(e.target.value)}
+            className="w-full p-2 border rounded-lg"
+          >
+            <option value="">Select Group</option>
+            <option value="Costumes">Costumes</option>
+            <option value="Other">Other</option>
+          </select>
+
           <ProductFormFields />
+
+          {groupArticle === 'Costumes' ? (
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" name="48_size" placeholder="Size 48" className="p-2 border rounded-lg" />
+              <input type="text" name="50_size" placeholder="Size 50" className="p-2 border rounded-lg" />
+              <input type="text" name="52_size" placeholder="Size 52" className="p-2 border rounded-lg" />
+              <input type="text" name="54_size" placeholder="Size 54" className="p-2 border rounded-lg" />
+              <input type="text" name="56_size" placeholder="Size 56" className="p-2 border rounded-lg" />
+              <input type="text" name="58_size" placeholder="Size 58" className="p-2 border rounded-lg" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <input type="text" name="s_size" placeholder="S Size" className="p-2 border rounded-lg" />
+              <input type="text" name="m_size" placeholder="M Size" className="p-2 border rounded-lg" />
+              <input type="text" name="l_size" placeholder="L Size" className="p-2 border rounded-lg" />
+              <input type="text" name="xl_size" placeholder="XL Size" className="p-2 border rounded-lg" />
+              <input type="text" name="xxl_size" placeholder="XXL Size" className="p-2 border rounded-lg" />
+            </div>
+          )}
 
           {error && (
             <div className="text-red-500 text-sm p-2 bg-red-50 rounded flex items-center">
-              <svg 
-                className="w-4 h-4 mr-2" 
-                fill="currentColor" 
-                viewBox="0 0 20 20"
-              >
-                <path 
-                  fillRule="evenodd" 
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
-                  clipRule="evenodd" 
-                />
+              <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
               <span>{error.message}</span>
             </div>
@@ -184,25 +199,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
             >
               {loading ? (
                 <>
-                  <svg 
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                  >
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
-                      strokeWidth="4"
-                    />
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                   </svg>
                   Adding...
                 </>

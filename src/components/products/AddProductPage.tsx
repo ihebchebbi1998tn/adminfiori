@@ -15,12 +15,18 @@ interface ProductFormData {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
-  "3xl_size": string;
   s_size: string;
   m_size: string;
   l_size: string;
   xl_size: string;
   xxl_size: string;
+  "3xl_size": string;
+  "48_size": string;
+  "50_size": string;
+  "52_size": string;
+  "54_size": string;
+  "56_size": string;
+  "58_size": string;
   color_product: string;
   status_product: string;
   related_products: string;
@@ -129,16 +135,23 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     itemgroup_product: '',
     price_product: '',
     qnty_product: '',
-    "3xl_size": '',
     s_size: '',
     m_size: '',
     l_size: '',
     xl_size: '',
     xxl_size: '',
+    "3xl_size": '',
+    "48_size": '',
+    "50_size": '',
+    "52_size": '',
+    "54_size": '',
+    "56_size": '',
+    "58_size": '',
     color_product: '',
     status_product: '',
-    related_products: 'first',
+    related_products: ''
   });
+  
 
   const availableCategories = useMemo(() => {
     if (!formData.type_product) return [];
@@ -415,26 +428,45 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
               </div>
 
               <div className="md:col-span-2">
-                <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                  {['s', 'm', 'l', 'xl', 'xxl' ,'3xl'].map(size => (
-                    <div key={size}>
-                      <label htmlFor={`${size}_size`} className={labelClassName}>{size.toUpperCase()}</label>
-                      <input
-                        type="number"
-                        id={`${size}_size`}
-                        name={`${size}_size`}
-                        value={formData[`${size}_size` as keyof typeof formData]}
-                        onChange={handleInputChange}
-                        min="0"
-                        placeholder="0"
-                        className={inputClassName}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+  <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
+  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+    {formData.itemgroup_product === 'costumes' ? (
+      // Render costume sizes
+      ['48', '50', '52', '54', '56', '58'].map(size => (
+        <div key={size}>
+          <label htmlFor={`${size}_size`} className={labelClassName}>{size}</label>
+          <input
+            type="number"
+            id={`${size}_size`}
+            name={`${size}_size`}
+            value={formData[`${size}_size` as keyof typeof formData]}
+            onChange={handleInputChange}
+            min="0"
+            placeholder="0"
+            className={inputClassName}
+          />
+        </div>
+      ))
+    ) : (
+      // Render regular sizes
+      ['s', 'm', 'l', 'xl', 'xxl', '3xl'].map(size => (
+        <div key={size}>
+          <label htmlFor={`${size}_size`} className={labelClassName}>{size.toUpperCase()}</label>
+          <input
+            type="number"
+            id={`${size}_size`}
+            name={`${size}_size`}
+            value={formData[`${size}_size` as keyof typeof formData]}
+            onChange={handleInputChange}
+            min="0"
+            placeholder="0"
+            className={inputClassName}
+          />
+        </div>
+      ))
+    )}
+  </div>
+</div>
               <div>
                 <label htmlFor="color_product" className={labelClassName}>Couleur</label>
                 <select

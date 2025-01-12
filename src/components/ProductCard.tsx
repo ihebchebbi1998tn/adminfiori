@@ -13,6 +13,7 @@ interface ProductCardProps {
 // Product Size Table Component
 const ProductSizeTable: React.FC<{ product: Product }> = ({ product }) => {
   const sizes = ['S', 'M', 'L', 'XL', 'XXL','3XL'];
+  const CostumeSizes = ['48', '50', '52', '54', '56', '58'];
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">
@@ -243,13 +244,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
           </div>
 
           <div className="grid grid-cols-6 gap-0.5 text-[10px] bg-gray-50 p-1 rounded">
-            {['S', 'M', 'L', 'XL', 'XXL' ,'3XL'].map((size) => (
-              <div key={size} className="text-center">
-                <div className="font-medium text-gray-600">{size}</div>
-                <div className="bg-white rounded">{product[`${size.toLowerCase()}_size` as keyof Product]}</div>
-              </div>
-            ))}
+  {product.itemgroup_product === 'costumes'
+    ? ['48', '50', '52', '54', '56', '58'].map((size) => (
+        <div key={size} className="text-center">
+          <div className="font-medium text-gray-600">{size}</div>
+          <div className="bg-white rounded">
+            {product[`${size}_size` as keyof Product]}
           </div>
+        </div>
+      ))
+    : ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
+        <div key={size} className="text-center">
+          <div className="font-medium text-gray-600">{size}</div>
+          <div className="bg-white rounded">
+            {product[`${size.toLowerCase()}_size` as keyof Product]}
+          </div>
+        </div>
+      ))}
+</div>
+
+      
 
           <div className="flex items-center justify-between pt-2 border-t border-gray-100">
             <span className="font-semibold text-sm text-[#5a0c1a]">
