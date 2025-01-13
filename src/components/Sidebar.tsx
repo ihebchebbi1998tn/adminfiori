@@ -6,6 +6,7 @@ import {
   Users, 
   Settings,
   LogOut,
+  User,
   Menu,
   ChevronRight
 } from 'lucide-react';
@@ -24,8 +25,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
     { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
     { icon: Package, label: 'Products', id: 'products' },
     { icon: ShoppingCart, label: 'Orders', id: 'orders' },
-    { icon: Users, label: 'Visitors', id: 'visitors' },
-    { icon: Settings, label: 'Clients', id: 'clients' },
+    { icon: User, label: 'Visitors', id: 'visitors' },
+    { icon: Users, label: 'Clients', id: 'clients' },
   ];
 
   const handleMenuClick = (id: string) => {
