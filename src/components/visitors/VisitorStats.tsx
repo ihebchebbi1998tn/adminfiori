@@ -26,7 +26,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-[#5a0c1a]/20">
         <div className="flex items-center gap-2 mb-4">
           <BarChart className="w-5 h-5 text-[#5a0c1a]" />
-          <h3 className="text-lg font-semibold">Daily Visits</h3>
+          <h3 className="text-lg font-semibold">Visites quotidiennes</h3>
         </div>
         <div className="space-y-4">
           {sortedDailyVisits.length > 0 ? (
@@ -34,7 +34,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
               <div key={date} className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>{new Date(date).toLocaleDateString()}</span>
-                  <span className="font-semibold">{count} visitors</span>
+                  <span className="font-semibold">{count} visiteurs</span>
                 </div>
                 <div className="h-2 bg-[#5a0c1a]/10 rounded-full">
                   <div
@@ -47,7 +47,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
               </div>
             ))
           ) : (
-            <div>No daily visits data available</div>
+            <div>Aucune donnée de visites quotidiennes disponible</div>
           )}
         </div>
       </div>
@@ -55,7 +55,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-[#5a0c1a]/20">
         <div className="flex items-center gap-2 mb-4">
           <Globe className="w-5 h-5 text-[#5a0c1a]" />
-          <h3 className="text-lg font-semibold">Regional Distribution</h3>
+          <h3 className="text-lg font-semibold">Répartition régionale</h3>
         </div>
         <div className="space-y-4">
           {regionalStats.length > 0 ? (
@@ -77,7 +77,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
               </div>
             ))
           ) : (
-            <div>No regional data available</div>
+            <div>Aucune donnée régionale disponible</div>
           )}
         </div>
       </div>
@@ -85,7 +85,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
       <div className="md:col-span-2 bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-[#5a0c1a]/20">
         <div className="flex items-center gap-2 mb-4">
           <MousePointer className="w-5 h-5 text-[#5a0c1a]" />
-          <h3 className="text-lg font-semibold">Page Views</h3>
+          <h3 className="text-lg font-semibold">Vues des pages</h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {Object.keys(pageViews).length > 0 ? (
@@ -96,7 +96,7 @@ const VisitorStats: React.FC<VisitorStatsProps> = ({
               </div>
             ))
           ) : (
-            <div>No page views data available</div>
+            <div>Aucune donnée de vues des pages disponible</div>
           )}
         </div>
       </div>

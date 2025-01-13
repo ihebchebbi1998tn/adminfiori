@@ -20,11 +20,11 @@ const VisitorsPage: React.FC = () => {
         if (result.status === 'success' && Array.isArray(result.data)) {
           setVisitors(result.data);
         } else {
-          throw new Error('Invalid data format');
+          throw new Error('Format de données invalide');
         }
       } catch (err) {
-        setError('Failed to fetch visitors data');
-        console.error('Error fetching visitors:', err);
+        setError('Échec de la récupération des données des visiteurs');
+        console.error('Erreur lors de la récupération des visiteurs:', err);
       } finally {
         setLoading(false);
       }
@@ -51,7 +51,7 @@ const VisitorsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-[#5a0c1a]">Visitor Analytics</h2>
+      <h2 className="text-2xl font-bold text-[#5a0c1a]">Analyse des Visiteurs</h2>
       
       <VisitorMetrics visitors={visitors} />
       <VisitorCharts visitors={visitors} />

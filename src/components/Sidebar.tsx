@@ -23,9 +23,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', id: 'dashboard' },
-    { icon: Package, label: 'Products', id: 'products' },
-    { icon: ShoppingCart, label: 'Orders', id: 'orders' },
-    { icon: User, label: 'Visitors', id: 'visitors' },
+    { icon: Package, label: 'Produits', id: 'products' },
+    { icon: ShoppingCart, label: 'Achats', id: 'orders' },
+    { icon: User, label: 'Visiteurs', id: 'visitors' },
     { icon: Users, label: 'Clients', id: 'clients' },
   ];
 
@@ -62,7 +62,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
           <Package className="w-8 h-8 text-white" />
           {!isCollapsed && (
             <h1 className="text-2xl font-bold text-white">
-              Fiori Admin
+              Fiori
             </h1>
           )}
         </div>
@@ -96,10 +96,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
             text-white/70 hover:bg-white/10 hover:text-white transition-all group
             ${isCollapsed ? 'justify-center' : ''}`}>
           <LogOut className={`w-5 h-5 ${isCollapsed ? 'w-6 h-6' : ''}`} />
-          {!isCollapsed && <span>Logout</span>}
+          {!isCollapsed && <span>Déconnexion</span>}
           {isCollapsed && (
             <div className="absolute left-full ml-4 px-2 py-1 bg-gray-900 text-white text-sm rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-              Logout
+              Déconnexion
             </div>
           )}
         </button>
