@@ -144,6 +144,13 @@ const ProductDetailModal: React.FC<{ product: Product; onClose: () => void }> = 
                   <Layers className="w-4 h-4 text-gray-400" />
                   <span>{product.itemgroup_product}</span>
                 </div>
+                {product.discount_product && product.discount_product !== "null" && (
+  <div className="flex items-center gap-1 text-sm">
+    <Layers className="w-4 h-4 text-gray-400" />
+    <span>{product.discount_product}</span>
+  </div>
+)}
+               
                 <div className="flex items-center gap-1 text-sm">
                   <Calendar className="w-4 h-4 text-gray-400" />
                   <span>{new Date(product.createdate_product).toLocaleDateString()}</span>
@@ -270,7 +277,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
               {new Intl.NumberFormat('fr-TN', {
                 style: 'currency',
                 currency: 'TND'
-              }).format(Number(product.price_product))}
+              }).format(Number(product.price_product))} 
             </span>
             <div className="flex gap-2">
             <button

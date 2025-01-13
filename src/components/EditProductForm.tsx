@@ -30,6 +30,7 @@ interface Product {
   "58_size": string;
   color_product: string;
   status_product: string;
+  discount_product: string;
   related_products: string;
 }
 
@@ -134,6 +135,17 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+              <label className="block text-sm font-medium mb-1">Remise</label>
+              <input
+                type="number"
+                name="discount_product"
+                value={formData.discount_product}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg"
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-1">Référence</label>
               <input

@@ -29,6 +29,7 @@ interface ProductFormData {
   "58_size": string;
   color_product: string;
   status_product: string;
+  discount_product: string;
   related_products: string;
 }
 
@@ -149,6 +150,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     "58_size": '',
     color_product: '',
     status_product: '',
+    discount_product: '',
     related_products: ''
   });
   
@@ -499,18 +501,18 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
                 </select>
               </div>
 
-              {/* <div className="md:col-span-2">
-                <label htmlFor="related_products" className={labelClassName}>Produits Associés</label>
+              <div className="md:col-span-2">
+                <label htmlFor="related_products" className={labelClassName}>Pourcentage Remise:</label>
                 <input
-                  type="text"
-                  id="related_products"
-                  name="related_products"
-                  value={formData.related_products}
+                  type="number"
+                  id="discount_product"
+                  name="discount_product"
+                  value={formData.discount_product}
                   onChange={handleInputChange}
-                  placeholder="Entrer les produits associés"
+                  placeholder="Ajouer en % remise pour cette article"
                   className={inputClassName}
                 />
-              </div> */}
+              </div> 
             </div>
           </div>
 
