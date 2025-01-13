@@ -21,7 +21,7 @@ const ClientsPage: React.FC = () => {
   const [clientsPerPage] = useState<number>(20);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Fetch data from API
+  // Récupérer les données depuis l'API
   useEffect(() => {
     const fetchClients = async () => {
       setIsLoading(true);
@@ -32,7 +32,7 @@ const ClientsPage: React.FC = () => {
           setClients(data.data);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Erreur lors de la récupération des données :', error);
       } finally {
         setIsLoading(false);
       }
@@ -41,20 +41,20 @@ const ClientsPage: React.FC = () => {
     fetchClients();
   }, []);
 
-  // Handle search input
+  // Gérer la saisie de la recherche
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1); // Réinitialiser à la première page lors de la recherche
   };
 
-  // Filter clients based on search query
+  // Filtrer les clients en fonction de la recherche
   const filteredClients = clients.filter((client) =>
     `${client.firstname} ${client.lastname}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase())
   );
 
-  // Paginate clients
+  // Pagination des clients
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
   const currentClients = filteredClients.slice(indexOfFirstClient, indexOfLastClient);
@@ -72,10 +72,9 @@ const ClientsPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Client List</h1>
         <input
           type="text"
-          placeholder="Search clients..."
+          placeholder="Rechercher des clients..."
           className="p-3 border border-[#5a0c1a] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a] focus:border-[#5a0c1a] w-1/4"
           value={searchQuery}
           onChange={handleSearch}
@@ -87,11 +86,11 @@ const ClientsPage: React.FC = () => {
           <thead className="bg-[#5a0c1a] text-white">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold">ID</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Nom</th>
               <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">Address</th>
-              <th className="px-6 py-4 text-left text-sm font-semibold">City</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Téléphone</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Adresse</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Ville</th>
             </tr>
           </thead>
           <tbody>
@@ -116,17 +115,17 @@ const ClientsPage: React.FC = () => {
           className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50 transition duration-300 ease-in-out hover:bg-[#8b2c2a]"
           disabled={currentPage === 1}
         >
-          Previous
+          Précédent
         </button>
         <span className="text-lg text-gray-700">
-          Page {currentPage} of {Math.ceil(filteredClients.length / clientsPerPage)}
+          Page {currentPage} sur {Math.ceil(filteredClients.length / clientsPerPage)}
         </span>
         <button
           onClick={() => paginate(currentPage + 1)}
           className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50 transition duration-300 ease-in-out hover:bg-[#8b2c2a]"
           disabled={currentPage === Math.ceil(filteredClients.length / clientsPerPage)}
         >
-          Next
+          Suivant
         </button>
       </div>
     </div>
