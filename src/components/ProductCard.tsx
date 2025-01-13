@@ -144,7 +144,7 @@ const ProductDetailModal: React.FC<{ product: Product; onClose: () => void }> = 
                   <Layers className="w-4 h-4 text-gray-400" />
                   <span>{product.itemgroup_product}</span>
                 </div>
-                {product.discount_product && product.discount_product !== "null" && (
+                {product.discount_product && product.discount_product !== "" && (
   <div className="flex items-center gap-1 text-sm">
     <Layers className="w-4 h-4 text-gray-400" />
     <span>{product.discount_product}</span>
