@@ -7,11 +7,12 @@ import VisitorsPage from './components/visitors/VisitorsPage';
 import SettingsForm from './components/settings/SettingsForm';
 import LoginScreen from './components/auth/LoginScreen';
 import DashboardOverview from './components/dashboard/DashboardOverview';
+import ClientsPage from './components/clients/ClientsPage';  // Import ClientsPage
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activePage, setActivePage] = useState('dashboard');
+const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [activePage, setActivePage] = useState<string>('dashboard');
 
   useEffect(() => {
     checkAuthStatus();
@@ -71,10 +72,10 @@ function App() {
             </div>
           )}
           {activePage === 'visitors' && <VisitorsPage />}
-          {activePage === 'settings' && (
+          {activePage === 'clients' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#5a0c1a]">Fiori Settings</h2>
-              <SettingsForm />
+              <h2 className="text-2xl font-bold text-[#5a0c1a]">Clients</h2>
+              <ClientsPage />
             </div>
           )}
         </div>

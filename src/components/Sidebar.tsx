@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
     { icon: Package, label: 'Products', id: 'products' },
     { icon: ShoppingCart, label: 'Orders', id: 'orders' },
     { icon: Users, label: 'Visitors', id: 'visitors' },
-    { icon: Settings, label: 'Settings', id: 'settings' },
+    { icon: Settings, label: 'Clients', id: 'clients' },
   ];
 
   const handleMenuClick = (id: string) => {
