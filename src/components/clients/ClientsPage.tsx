@@ -70,38 +70,39 @@ const ClientsPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-[#5a0c1a]">Clients</h2>
+    <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-800">Client List</h1>
         <input
           type="text"
-          placeholder="Search clients"
-          className="p-2 border border-[#5a0c1a] rounded-md"
+          placeholder="Search clients..."
+          className="p-3 border border-[#5a0c1a] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a] focus:border-[#5a0c1a] w-1/4"
           value={searchQuery}
           onChange={handleSearch}
         />
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto bg-white shadow-md rounded-md">
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+        <table className="min-w-full table-auto">
           <thead className="bg-[#5a0c1a] text-white">
             <tr>
-              <th className="px-4 py-2">ID</th>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Address</th>
-              <th className="px-4 py-2">City</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">ID</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Name</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Email</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">Address</th>
+              <th className="px-6 py-4 text-left text-sm font-semibold">City</th>
             </tr>
           </thead>
           <tbody>
             {currentClients.map((client) => (
               <tr key={client.id_customer} className="border-b hover:bg-gray-100">
-                <td className="px-4 py-2">{client.id_customer}</td>
-                <td className="px-4 py-2">{client.firstname} {client.lastname}</td>
-                <td className="px-4 py-2">{client.email}</td>
-                <td className="px-4 py-2">{client.phone}</td>
-                <td className="px-4 py-2">{client.address1} {client.address2}</td>
-                <td className="px-4 py-2">{client.city}</td>
+                <td className="px-6 py-4 text-sm">{client.id_customer}</td>
+                <td className="px-6 py-4 text-sm">{client.firstname} {client.lastname}</td>
+                <td className="px-6 py-4 text-sm">{client.email}</td>
+                <td className="px-6 py-4 text-sm">{client.phone}</td>
+                <td className="px-6 py-4 text-sm">{client.address1} {client.address2}</td>
+                <td className="px-6 py-4 text-sm">{client.city}</td>
               </tr>
             ))}
           </tbody>
@@ -112,17 +113,17 @@ const ClientsPage: React.FC = () => {
       <div className="flex justify-center items-center space-x-2 py-4">
         <button
           onClick={() => paginate(currentPage - 1)}
-          className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50 transition duration-300 ease-in-out hover:bg-[#8b2c2a]"
           disabled={currentPage === 1}
         >
           Previous
         </button>
-        <span className="text-lg">
+        <span className="text-lg text-gray-700">
           Page {currentPage} of {Math.ceil(filteredClients.length / clientsPerPage)}
         </span>
         <button
           onClick={() => paginate(currentPage + 1)}
-          className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-[#5a0c1a] text-white rounded-md disabled:opacity-50 transition duration-300 ease-in-out hover:bg-[#8b2c2a]"
           disabled={currentPage === Math.ceil(filteredClients.length / clientsPerPage)}
         >
           Next
