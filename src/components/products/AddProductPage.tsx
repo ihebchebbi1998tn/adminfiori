@@ -88,15 +88,16 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['costumes', 'blazers']
+        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'pollo']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['chemises']
+        itemGroups: ['chemises', 'robes', 'vestes']
       }
     }
   }
 } as const;
+
 
 const COLORS = [
   { value: 'rouge', label: 'Rouge' },
