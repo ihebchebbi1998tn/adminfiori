@@ -53,7 +53,7 @@ const NewsLetter: React.FC = () => {
       <div className="flex justify-between items-center">
         <input
           type="text"
-          placeholder="Search emails..."
+          placeholder="Rechercher des e-mails..."
           className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-1/3"
           value={searchQuery}
           onChange={handleSearch}
@@ -81,7 +81,7 @@ const NewsLetter: React.FC = () => {
 
       {filteredEmails.length === 0 && (
         <div className="text-center text-gray-500 py-6">
-          No emails found.
+      Aucun email trouvé.
         </div>
       )}
     </div>
