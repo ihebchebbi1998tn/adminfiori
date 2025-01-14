@@ -15,14 +15,19 @@ interface UserDetails {
 }
 
 interface OrderItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  size: string;
-  color: string;
+  item_id: string; // Matches "item_id" from the API
+  name: string; // Matches "name" from the API
+  price: number; // Matches "price" from the API
+  quantity: number; // Matches "quantity" from the API
+  total_price: number; // Matches "total_price" from the API
+  image: string; // Matches "image" from the API
+  size: string; // Matches "size" from the API
+  color: string; // Matches "color" from the API
+  personalization: string; // Matches "personalization" from the API
+  pack: string; // Matches "pack" from the API
+  box: string; // Matches "box" from the API
 }
+
 
 interface PriceDetails {
   subtotal: number;
@@ -132,7 +137,7 @@ const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
       <h3 className="font-semibold text-lg text-[#700100] mb-4">Articles commandés</h3>
       <div className="space-y-4">
         {items.map(item => (
-          <div key={item.id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
+          <div key={item.item_id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
             <img 
               src={item.image} 
               alt={item.name}
@@ -147,9 +152,14 @@ const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
                 <span className="mr-4">Taille: {item.size}</span>
                 <span>Couleur: {item.color}</span>
               </div>
+              <div className="text-sm text-gray-500 mt-1">
+                <span className="mr-4">Personnalisation: {item.personalization}</span>
+                <span>Pack: {item.pack}</span>
+                <span className="ml-4">Box: {item.box}</span>
+              </div>
               <div className="flex justify-between items-center mt-2">
                 <span className="text-sm text-gray-600">Quantité: {item.quantity}</span>
-                <span className="font-medium">{formatCurrency(item.price * item.quantity)}</span>
+                <span className="font-medium">{formatCurrency(item.total_price)}</span>
               </div>
             </div>
           </div>
@@ -158,6 +168,7 @@ const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
     </div>
   );
 };
+
 
 const OrderDetailsModal: React.FC<{
   order: Order;
