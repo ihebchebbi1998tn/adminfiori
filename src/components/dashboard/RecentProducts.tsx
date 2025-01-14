@@ -14,7 +14,7 @@ const RecentProducts: React.FC<{ products: Product[] }> = ({ products }) => {
   const getImageUrl = (imagePath: string) => {
     return imagePath.startsWith('http') 
       ? imagePath 
-      : `https://respizenmedical.com/fiori/productsimages/${imagePath}`;
+      : `https://respizenmedical.com/fiori/${imagePath}`;
   };
 
   return (
@@ -23,7 +23,7 @@ const RecentProducts: React.FC<{ products: Product[] }> = ({ products }) => {
         <Package className="w-5 h-5 text-[#5a0c1a]" />
         <h3 className="text-lg font-semibold">Recent Products</h3>
       </div>
-      
+
       <div className="space-y-4">
         {products.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No products available</p>
@@ -31,24 +31,26 @@ const RecentProducts: React.FC<{ products: Product[] }> = ({ products }) => {
           products.map((product) => (
             <div 
               key={product.id_product}
-              className="flex items-center gap-4 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-4 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all duration-300 ease-in-out"
             >
               <img
                 src={getImageUrl(product.img_product)}
                 alt={product.nom_product}
-                className="w-12 h-12 rounded-lg object-cover"
+                className="w-16 h-16 rounded-lg object-cover border border-[#5a0c1a] shadow-md"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48';
                 }}
               />
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium truncate">{product.nom_product}</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-sm truncate">{product.nom_product}</h4>
+                <p className="text-xs text-gray-600">
                   Stock: {product.qnty_product} units
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-semibold">{parseFloat(product.price_product).toLocaleString()} TND</p>
+                <p className="font-semibold text-lg">
+                  {parseFloat(product.price_product).toLocaleString()} TND
+                </p>
                 <span className={`text-xs px-2 py-1 rounded-full ${
                   product.status_product === 'En stock' 
                     ? 'bg-green-100 text-green-800'
