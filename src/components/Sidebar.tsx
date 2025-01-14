@@ -27,8 +27,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
     { icon: ShoppingCart, label: 'Achats', id: 'orders' },
     { icon: User, label: 'Visiteurs', id: 'visitors' },
     { icon: Users, label: 'Clients', id: 'clients' },
+    { icon: Users, label: 'Newsletter', id: 'newsletter' }, // Added Newsletter item
   ];
-
+  
   const handleMenuClick = (id: string) => {
     setActivePage(id);
     setIsMobileMenuOpen(false);

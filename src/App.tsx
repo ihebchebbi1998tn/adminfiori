@@ -8,6 +8,7 @@ import SettingsForm from './components/settings/SettingsForm';
 import LoginScreen from './components/auth/LoginScreen';
 import DashboardOverview from './components/dashboard/DashboardOverview';
 import ClientsPage from './components/clients/ClientsPage';  // Import ClientsPage
+import NewsLetter from './components/NewsLetter';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -78,6 +79,13 @@ const App: React.FC = () => {
               <ClientsPage />
             </div>
           )}
+
+   {activePage === 'newsletter' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-[#5a0c1a]">Clients</h2>
+              <NewsLetter />
+            </div>
+          )} 
         </div>
       </main>
     </div>

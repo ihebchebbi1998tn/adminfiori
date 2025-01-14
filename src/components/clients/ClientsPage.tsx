@@ -75,7 +75,7 @@ const ClientsPage: React.FC = () => {
         <input
           type="text"
           placeholder="Rechercher des clients..."
-          className="p-3 border border-[#5a0c1a] rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a] focus:border-[#5a0c1a] w-1/4"
+          className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-1/3"
           value={searchQuery}
           onChange={handleSearch}
         />
