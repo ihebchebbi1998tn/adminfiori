@@ -5,52 +5,52 @@ import { calculateTotalRevenue } from '../../utils/calculations';
 import RecentProducts from './RecentProducts';
 import VisitorChart from './VisitorChart';
 
-const DashboardOverview = () => {
-  const [products, setProducts] = useState([]);
-  const [visitors, setVisitors] = useState([]);
-  const [orderCount, setOrderCount] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+const VueDEnsembleTableauDeBord = () => {
+  const [produits, setProduits] = useState([]);
+  const [visiteurs, setVisiteurs] = useState([]);
+  const [nombreCommandes, setNombreCommandes] = useState(0);
+  const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
+    const recupererDonnees = async () => {
       try {
-        const [productsRes, visitorsRes, ordersRes] = await Promise.all([
+        const [produitsRes, visiteursRes, commandesRes] = await Promise.all([
           fetch('https://respizenmedical.com/fiori/get_all_articles.php'),
           fetch('https://respizenmedical.com/fiori/get_visitors.php'),
           fetch('https://respizenmedical.com/fiori/get_orders.php')
         ]);
 
-        const productsData = await productsRes.json();
-        const visitorsData = await visitorsRes.json();
-        const ordersData = await ordersRes.json();
+        const donneesProduits = await produitsRes.json();
+        const donneesVisiteurs = await visiteursRes.json();
+        const donneesCommandes = await commandesRes.json();
 
-        if (Array.isArray(productsData)) {
-          setProducts(productsData);
-        } else if (productsData.status === 'success' && Array.isArray(productsData.products)) {
-          setProducts(productsData.products);
+        if (Array.isArray(donneesProduits)) {
+          setProduits(donneesProduits);
+        } else if (donneesProduits.status === 'success' && Array.isArray(donneesProduits.products)) {
+          setProduits(donneesProduits.products);
         }
 
-        if (visitorsData.status === 'success' && Array.isArray(visitorsData.data)) {
-          setVisitors(visitorsData.data);
+        if (donneesVisiteurs.status === 'success' && Array.isArray(donneesVisiteurs.data)) {
+          setVisiteurs(donneesVisiteurs.data);
         }
 
-        if (ordersData.status === 'success' && Array.isArray(ordersData.data)) {
-          setOrderCount(ordersData.data.length);
+        if (donneesCommandes.status === 'success' && Array.isArray(donneesCommandes.data)) {
+          setNombreCommandes(donneesCommandes.data.length);
         }
 
       } catch (err) {
-        console.error('Dashboard fetch error:', err);
-        setError('Failed to fetch dashboard data');
+        console.error('Erreur lors de la récupération des données du tableau de bord :', err);
+        setErreur('Échec de la récupération des données du tableau de bord');
       } finally {
-        setLoading(false);
+        setChargement(false);
       }
     };
 
-    fetchData();
+    recupererDonnees();
   }, []);
 
-  if (loading) {
+  if (chargement) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
@@ -58,53 +58,53 @@ const DashboardOverview = () => {
     );
   }
 
-  if (error) {
+  if (erreur) {
     return (
       <div className="p-4 bg-red-50 text-red-500 rounded-lg">
-        {error}
+        {erreur}
       </div>
     );
   }
 
-  const totalRevenue = calculateTotalRevenue(products);
-  const totalProducts = products.length;
-  const totalVisitors = visitors.length;
-  const lowStockProducts = products.filter(p => parseInt(p.qnty_product) < 10).length;
+  const revenuTotal = calculateTotalRevenue(produits);
+  const totalProduits = produits.length;
+  const totalVisiteurs = visiteurs.length;
+  const produitsFaibleStock = produits.filter(p => parseInt(p.qnty_product) < 10).length;
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-[#5a0c1a]">Dashboard Overview</h2>
+      <h2 className="text-2xl font-bold text-[#5a0c1a]">Vue d'ensemble du tableau de bord</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Revenue"
-          value={`- tnd`}
+          title="Revenu Total"
+          value={`- TND`}
           icon={<DollarSign className="w-6 h-6 text-[#5a0c1a]" />}
         />
         <StatCard
-          title="Total Products"
-          value={totalProducts}
+          title="Total Produits"
+          value={totalProduits}
           icon={<Package className="w-6 h-6 text-[#5a0c1a]" />}
-          alert={lowStockProducts > 0 ? `${lowStockProducts} products low in stock` : undefined}
+          alert={produitsFaibleStock > 0 ? `${produitsFaibleStock} produits en stock faible` : undefined}
         />
         <StatCard
-          title="Active Orders"
-          value={orderCount.toString()}
+          title="Commandes Actives"
+          value={nombreCommandes.toString()}
           icon={<ShoppingCart className="w-6 h-6 text-[#5a0c1a]" />}
         />
         <StatCard
-          title="Total Visitors"
-          value={totalVisitors}
+          title="Total Visiteurs"
+          value={totalVisiteurs}
           icon={<Users className="w-6 h-6 text-[#5a0c1a]" />}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <VisitorChart visitors={visitors} />
-        {products.length > 0 && <RecentProducts products={products.slice(0, 5)} />}
+        <VisitorChart visitors={visiteurs} />
+        {produits.length > 0 && <RecentProducts products={produits.slice(0, 5)} />}
       </div>
     </div>
   );
 };
 
-export default DashboardOverview;
+export default VueDEnsembleTableauDeBord;
