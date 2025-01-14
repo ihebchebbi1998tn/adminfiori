@@ -75,14 +75,12 @@ const App: React.FC = () => {
           {activePage === 'visitors' && <VisitorsPage />}
           {activePage === 'clients' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#5a0c1a]">Clients</h2>
               <ClientsPage />
             </div>
           )}
 
    {activePage === 'newsletter' && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#5a0c1a]">Clients</h2>
               <NewsLetter />
             </div>
           )} 
