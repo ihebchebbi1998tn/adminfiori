@@ -62,7 +62,7 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes']
+        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes' , 'porte-cles']
       },
       femme: {
         label: 'Femme',
