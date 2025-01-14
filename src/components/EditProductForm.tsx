@@ -202,34 +202,51 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
               />
             </div>
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-  {formData.itemgroup_product === 'costumes'
-    ? ['58', '50', '52', '54', '56'].map((size) => (
-        <div key={size}>
-          <label className="block text-sm font-medium mb-1">Taille {size}</label>
-          <input
-            type="number"
-            name={`${size}_size`}
-            value={formData[`${size}_size` as keyof Product] || ''}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded-lg"
-          />
-        </div>
-      ))
-    : ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
-        <div key={size}>
-          <label className="block text-sm font-medium mb-1">Taille {size}</label>
-          <input
-            type="number"
-            name={`${size.toLowerCase()}_size`}
-            value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
-            onChange={handleChange}
-            min="0"
-            className="w-full p-2 border rounded-lg"
-          />
-        </div>
-      ))}
+  {formData.itemgroup_product === 'costumes' ? (
+    ['58', '50', '52', '54', '56'].map((size) => (
+      <div key={size}>
+        <label className="block text-sm font-medium mb-1">Taille {size}</label>
+        <input
+          type="number"
+          name={`${size}_size`}
+          value={formData[`${size}_size` as keyof Product] || ''}
+          onChange={handleChange}
+          min="0"
+          className="w-full p-2 border rounded-lg"
+        />
+      </div>
+    ))
+  ) : formData.itemgroup_product === 'vestes' ? (
+    ['38', '40', '42', '44', '46', '48'].map((size) => (
+      <div key={size}>
+        <label className="block text-sm font-medium mb-1">Taille {size}</label>
+        <input
+          type="number"
+          name={`${size}_size`}
+          value={formData[`${size}_size` as keyof Product] || ''}
+          onChange={handleChange}
+          min="0"
+          className="w-full p-2 border rounded-lg"
+        />
+      </div>
+    ))
+  ) : (
+    ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
+      <div key={size}>
+        <label className="block text-sm font-medium mb-1">Taille {size}</label>
+        <input
+          type="number"
+          name={`${size.toLowerCase()}_size`}
+          value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
+          onChange={handleChange}
+          min="0"
+          className="w-full p-2 border rounded-lg"
+        />
+      </div>
+    ))
+  )}
 </div>
+
 
 
 

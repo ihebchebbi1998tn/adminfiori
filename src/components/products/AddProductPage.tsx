@@ -433,42 +433,65 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
               <div className="md:col-span-2">
   <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
   <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-    {formData.itemgroup_product === 'costumes' ? (
-      // Render costume sizes
-      ['48', '50', '52', '54', '56', '58'].map(size => (
-        <div key={size}>
-          <label htmlFor={`${size}_size`} className={labelClassName}>{size}</label>
-          <input
-            type="number"
-            id={`${size}_size`}
-            name={`${size}_size`}
-            value={formData[`${size}_size` as keyof typeof formData]}
-            onChange={handleInputChange}
-            min="0"
-            placeholder="0"
-            className={inputClassName}
-          />
-        </div>
-      ))
-    ) : (
-      // Render regular sizes
-      ['s', 'm', 'l', 'xl', 'xxl', '3xl'].map(size => (
-        <div key={size}>
-          <label htmlFor={`${size}_size`} className={labelClassName}>{size.toUpperCase()}</label>
-          <input
-            type="number"
-            id={`${size}_size`}
-            name={`${size}_size`}
-            value={formData[`${size}_size` as keyof typeof formData]}
-            onChange={handleInputChange}
-            min="0"
-            placeholder="0"
-            className={inputClassName}
-          />
-        </div>
-      ))
-    )}
-  </div>
+  {formData.itemgroup_product === 'costumes' ? (
+    // Render costume sizes
+    ['48', '50', '52', '54', '56', '58'].map((size) => (
+      <div key={size}>
+        <label htmlFor={`${size}_size`} className={labelClassName}>
+          {size}
+        </label>
+        <input
+          type="number"
+          id={`${size}_size`}
+          name={`${size}_size`}
+          value={formData[`${size}_size` as keyof typeof formData] || ''}
+          onChange={handleInputChange}
+          min="0"
+          placeholder="0"
+          className={inputClassName}
+        />
+      </div>
+    ))
+  ) : formData.itemgroup_product === 'vestes' ? (
+    // Render veste sizes
+    ['38', '40', '42', '44', '46', '48'].map((size) => (
+      <div key={size}>
+        <label htmlFor={`${size}_size`} className={labelClassName}>
+          {size}
+        </label>
+        <input
+          type="number"
+          id={`${size}_size`}
+          name={`${size}_size`}
+          value={formData[`${size}_size` as keyof typeof formData] || ''}
+          onChange={handleInputChange}
+          min="0"
+          placeholder="0"
+          className={inputClassName}
+        />
+      </div>
+    ))
+  ) : (
+    // Render regular sizes
+    ['s', 'm', 'l', 'xl', 'xxl', '3xl'].map((size) => (
+      <div key={size}>
+        <label htmlFor={`${size}_size`} className={labelClassName}>
+          {size.toUpperCase()}
+        </label>
+        <input
+          type="number"
+          id={`${size}_size`}
+          name={`${size}_size`}
+          value={formData[`${size}_size` as keyof typeof formData] || ''}
+          onChange={handleInputChange}
+          min="0"
+          placeholder="0"
+          className={inputClassName}
+        />
+      </div>
+    ))
+  )}
+</div>
 </div>
               <div>
                 <label htmlFor="color_product" className={labelClassName}>Couleur</label>
