@@ -26,20 +26,35 @@ const ClientsPage: React.FC = () => {
     const fetchClients = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://fioriforyou.com/get_old_info.php');
+        const response = await fetch('https://fioriforyou.com/get_old_info.php', {
+          method: 'GET',
+          mode: 'cors', // Enables Cross-Origin Resource Sharing
+          headers: {
+            'Content-Type': 'application/json', // Explicitly set the content type
+          },
+          credentials: 'same-origin', // Use 'include' if cookies or credentials are required
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
         const data = await response.json();
         if (data.success) {
           setClients(data.data);
+        } else {
+          console.error('Erreur lors de la récupération des données:', data.message);
         }
       } catch (error) {
-        console.error('Erreur lors de la récupération des données :', error);
+        console.error('Erreur lors de la récupération des données:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchClients();
   }, []);
+  
 
   // Gérer la saisie de la recherche
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
