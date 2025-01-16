@@ -26,7 +26,7 @@ const ClientsPage: React.FC = () => {
     const fetchClients = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://fioriforyou.com/apis/get_old_info.php');
+        const response = await fetch('https://fioriforyou.com/get_old_info.php');
         const data = await response.json();
         if (data.success) {
           setClients(data.data);
