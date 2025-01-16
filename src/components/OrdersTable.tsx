@@ -12,6 +12,7 @@ interface UserDetails {
   address: string;
   country: string;
   zip_code: string;
+  order_note: string;
 }
 
 interface OrderItem {
@@ -209,6 +210,10 @@ const OrderDetailsModal: React.FC<{
               <div>
                 <p className="text-sm text-gray-600">Adresse</p>
                 <p className="font-medium">{`${order.user_details.address}, ${order.user_details.zip_code}, ${order.user_details.country}`}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Note</p>
+                <p className="font-medium">{order.user_details.order_note}</p>
               </div>
             </div>
           </div>
