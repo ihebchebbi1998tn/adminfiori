@@ -26,7 +26,7 @@ const ClientsPage: React.FC = () => {
     const fetchClients = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://fioriforyou.com/get_old_info.php', {
+        const response = await fetch('https://respizenmedical.com/fiori/get_old_info.php', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json', // Explicitly set the content type
