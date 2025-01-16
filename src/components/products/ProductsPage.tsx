@@ -8,23 +8,44 @@ import { Product } from '../../types/products';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAddPage, setShowAddPage] = useState(false);
   const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadProducts();
   }, []);
 
+  useEffect(() => {
+    filterProducts();
+  }, [searchTerm, products]);
+
   const loadProducts = async () => {
     try {
       const data = await fetchProducts();
       setProducts(data);
+      setFilteredProducts(data); // Set the initial filtered products to all products
     } catch (err) {
       setError('Failed to fetch products');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const filterProducts = () => {
+    if (!searchTerm) {
+      setFilteredProducts(products);
+    } else {
+      const lowercasedSearchTerm = searchTerm.toLowerCase();
+      const filtered = products.filter(product => 
+        product.nom_product.toLowerCase().includes(lowercasedSearchTerm) ||
+        product.reference_product.toLowerCase().includes(lowercasedSearchTerm) ||
+        product.category_product.toLowerCase().includes(lowercasedSearchTerm)
+      );
+      setFilteredProducts(filtered);
     }
   };
 
@@ -59,6 +80,16 @@ const ProductsPage = () => {
           Add New Product
         </button>
       </div>
+
+      <div className="mt-4">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for products..."
+          className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        />
+      </div>
       
       {error && (
         <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">
@@ -66,13 +97,13 @@ const ProductsPage = () => {
         </div>
       )}
 
-      {products.length === 0 ? (
+      {filteredProducts.length === 0 ? (
         <div className="text-center p-8 bg-white/10 backdrop-blur-lg rounded-xl border border-[#5a0c1a]/20">
           <p className="text-gray-600">No products found. Add your first product!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map(product => (
+          {filteredProducts.map(product => (
             <ProductCard 
               key={product.id_product}
               product={product}
