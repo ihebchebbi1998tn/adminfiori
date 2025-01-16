@@ -28,7 +28,6 @@ const ClientsPage: React.FC = () => {
       try {
         const response = await fetch('https://fioriforyou.com/get_old_info.php', {
           method: 'GET',
-          mode: 'no-cors', // Enables Cross-Origin Resource Sharing
           headers: {
             'Content-Type': 'application/json', // Explicitly set the content type
           },
