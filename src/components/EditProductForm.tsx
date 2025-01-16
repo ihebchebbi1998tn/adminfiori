@@ -1,5 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Upload, Loader } from 'lucide-react';
+
+// Configuration Constants
+const PRODUCT_OPTIONS = {
+  'le-monde-fiori': {
+    label: 'Le Monde Fiori',
+    categories: {
+      homme: {
+        label: 'Homme',
+        itemGroups: ['histoire', 'collection', 'dna']
+      }
+    }
+  },
+  'pret-a-porter': {
+    label: 'Prêt à Porter',
+    categories: {
+      homme: {
+        label: 'Homme',
+        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'pollo']
+      },
+      femme: {
+        label: 'Femme',
+        itemGroups: ['chemises', 'robes', 'vestes']
+      }
+    }
+  },
+  'accessoires': {
+    label: 'Accessoires',
+    categories: {
+      homme: {
+        label: 'Homme',
+        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes', 'porte-cles']
+      },
+      femme: {
+        label: 'Femme',
+        itemGroups: ['sacs-a-main']
+      }
+    }
+  },
+  'sur-mesure': {
+    label: 'Sur Mesure',
+    categories: {
+      homme: {
+        label: 'Homme',
+        itemGroups: ['portefeuilles', 'ceintures']
+      },
+      femme: {
+        label: 'Femme',
+        itemGroups: ['sacs-a-main']
+      }
+    }
+  },
+  'outlet': {
+    label: 'Outlet',
+    categories: {
+      homme: {
+        label: 'Homme',
+        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'pollo']
+      },
+      femme: {
+        label: 'Femme',
+        itemGroups: ['chemises', 'robes', 'vestes']
+      }
+    }
+  }
+} as const;
+
+const COLORS = [
+  { value: 'rouge', label: 'Rouge' },
+  { value: 'bleu', label: 'Bleu' },
+  { value: 'vert', label: 'Vert' },
+  { value: 'jaune', label: 'Jaune' },
+  { value: 'noir', label: 'Noir' },
+  { value: 'blanc', label: 'Blanc' },
+  { value: 'gris', label: 'Gris' },
+  { value: 'rose', label: 'Rose' },
+  { value: 'marron', label: 'Marron' },
+  { value: 'violet', label: 'Violet' },
+  { value: 'orange', label: 'Orange' }
+] as const;
 
 // Define the Product type interface
 interface Product {
@@ -51,6 +130,45 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [availableItemGroups, setAvailableItemGroups] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Update available categories when type changes
+    const type = formData.type_product as keyof typeof PRODUCT_OPTIONS;
+    if (PRODUCT_OPTIONS[type]) {
+      const categories = Object.keys(PRODUCT_OPTIONS[type].categories);
+      setAvailableCategories(categories);
+      
+      // Reset category and item group if not available in new type
+      if (!categories.includes(formData.category_product)) {
+        setFormData(prev => ({
+          ...prev,
+          category_product: categories[0],
+          itemgroup_product: PRODUCT_OPTIONS[type].categories[categories[0]].itemGroups[0]
+        }));
+      }
+    }
+  }, [formData.type_product]);
+
+  useEffect(() => {
+    // Update available item groups when category changes
+    const type = formData.type_product as keyof typeof PRODUCT_OPTIONS;
+    const category = formData.category_product;
+    
+    if (PRODUCT_OPTIONS[type]?.categories[category]) {
+      const itemGroups = PRODUCT_OPTIONS[type].categories[category].itemGroups;
+      setAvailableItemGroups(itemGroups);
+      
+      // Reset item group if not available in new category
+      if (!itemGroups.includes(formData.itemgroup_product)) {
+        setFormData(prev => ({
+          ...prev,
+          itemgroup_product: itemGroups[0]
+        }));
+      }
+    }
+  }, [formData.type_product, formData.category_product]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -61,8 +179,6 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
       [name]: value
     }));
   };
-
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,7 +251,76 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+            {/* Type Select */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Type</label>
+              <select
+                name="type_product"
+                value={formData.type_product}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg"
+              >
+                {Object.entries(PRODUCT_OPTIONS).map(([value, { label }]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category Select */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Catégorie</label>
+              <select
+                name="category_product"
+                value={formData.category_product}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg"
+              >
+                {availableCategories.map(category => (
+                  <option key={category} value={category}>
+                    {PRODUCT_OPTIONS[formData.type_product as keyof typeof PRODUCT_OPTIONS]
+                      ?.categories[category].label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Item Group Select */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Groupe d'articles</label>
+              <select
+                name="itemgroup_product"
+                value={formData.itemgroup_product}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg"
+              >
+                {availableItemGroups.map(group => (
+                  <option key={group} value={group}>
+                    {group.charAt(0).toUpperCase() + group.slice(1).replace('-', ' ')}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Color Select */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Couleur</label>
+              <select
+                name="color_product"
+                value={formData.color_product}
+                onChange={handleChange}
+                className="w-full p-2 border rounded-lg"
+              >
+                {COLORS.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium mb-1">Remise</label>
               <input
                 type="number"
@@ -201,59 +386,53 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
                 className="w-full p-2 border rounded-lg"
               />
             </div>
+
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-  {formData.itemgroup_product === 'costumes' ? (
-    ['58', '50', '52', '54', '56'].map((size) => (
-      <div key={size}>
-        <label className="block text-sm font-medium mb-1">Taille {size}</label>
-        <input
-          type="number"
-          name={`${size}_size`}
-          value={formData[`${size}_size` as keyof Product] || ''}
-          onChange={handleChange}
-          min="0"
-          className="w-full p-2 border rounded-lg"
-        />
-      </div>
-    ))
-  ) : formData.itemgroup_product === 'vestes' ? (
-    ['38', '40', '42', '44', '46', '48'].map((size) => (
-      <div key={size}>
-        <label className="block text-sm font-medium mb-1">Taille {size}</label>
-        <input
-          type="number"
-          name={`${size}_size`}
-          value={formData[`${size}_size` as keyof Product] || ''}
-          onChange={handleChange}
-          min="0"
-          className="w-full p-2 border rounded-lg"
-        />
-      </div>
-    ))
-  ) : (
-    ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
-      <div key={size}>
-        <label className="block text-sm font-medium mb-1">Taille {size}</label>
-        <input
-          type="number"
-          name={`${size.toLowerCase()}_size`}
-          value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
-          onChange={handleChange}
-          min="0"
-          className="w-full p-2 border rounded-lg"
-        />
-      </div>
-    ))
-  )}
-</div>
-
-
-
-
-           
-
-</div>
-
+              {formData.itemgroup_product === 'costumes' ? (
+                ['58', '50', '52', '54', '56'].map((size) => (
+                  <div key={size}>
+                    <label className="block text-sm font-medium mb-1">Taille {size}</label>
+                    <input
+                      type="number"
+                      name={`${size}_size`}
+                      value={formData[`${size}_size` as keyof Product] || ''}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full p-2 border rounded-lg"
+                    />
+                  </div>
+                ))
+              ) : formData.itemgroup_product === 'vestes' ? (
+                ['38', '40', '42', '44', '46', '48'].map((size) => (
+                  <div key={size}>
+                    <label className="block text-sm font-medium mb-1">Taille {size}</label>
+                    <input
+                      type="number"
+                      name={`${size}_size`}
+                      value={formData[`${size}_size` as keyof Product] || ''}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full p-2 border rounded-lg"
+                    />
+                  </div>
+                ))
+              ) : (
+                ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
+                  <div key={size}>
+                    <label className="block text-sm font-medium mb-1">Taille {size}</label>
+                    <input
+                      type="number"
+                      name={`${size.toLowerCase()}_size`}
+                      value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
+                      onChange={handleChange}
+                      min="0"
+                      className="w-full p-2 border rounded-lg"
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
           {error && (
             <div className="bg-red-50 text-red-500 p-3 rounded-lg">
