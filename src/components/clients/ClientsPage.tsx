@@ -21,7 +21,6 @@ const ClientsPage: React.FC = () => {
   const [clientsPerPage] = useState<number>(20);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Récupérer les données depuis l'API
   useEffect(() => {
     const fetchClients = async () => {
       setIsLoading(true);
@@ -29,9 +28,9 @@ const ClientsPage: React.FC = () => {
         const response = await fetch('https://respizenmedical.com/fiori/get_old_info.php', {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json', // Explicitly set the content type
+            'Content-Type': 'application/json',
           },
-          credentials: 'same-origin', // Use 'include' if cookies or credentials are required
+          credentials: 'omit', // Use 'omit' if credentials are not needed
         });
   
         if (!response.ok) {
@@ -53,6 +52,7 @@ const ClientsPage: React.FC = () => {
   
     fetchClients();
   }, []);
+  
   
 
   // Gérer la saisie de la recherche
