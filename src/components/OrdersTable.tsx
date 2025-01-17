@@ -140,7 +140,7 @@ const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
         {items.map(item => (
           <div key={item.item_id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
             <img 
-              src={item.image} 
+             src={`https://respizenmedical.com/fiori/${item.image}`}
               alt={item.name}
               className="w-20 h-20 object-cover rounded-md"
               onError={(e) => {
