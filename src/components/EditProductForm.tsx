@@ -389,7 +389,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
 
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
               {formData.itemgroup_product === 'costumes' ? (
-                ['58', '50', '52', '54', '56'].map((size) => (
+                ['48', '50', '52', '54', '56', '58'].map((size) => (
                   <div key={size}>
                     <label className="block text-sm font-medium mb-1">Taille {size}</label>
                     <input
