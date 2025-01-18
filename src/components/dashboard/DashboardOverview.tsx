@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { DollarSign, Package, ShoppingCart, Users } from 'lucide-react';
-import StatCard from '../StatCard';
-import { calculateTotalRevenue } from '../../utils/calculations';
-import RecentProducts from './RecentProducts';
+import StatCard from './StatCard';
+import RevenueChart from './RevenueChart';
 import VisitorChart from './VisitorChart';
+
+interface Order {
+  created_at: string;
+  price_details: {
+    final_total: number;
+  };
+}
+
+interface RevenueData {
+  date: string;
+  amount: number;
+}
 
 const VueDEnsembleTableauDeBord = () => {
   const [produits, setProduits] = useState([]);
   const [visiteurs, setVisiteurs] = useState([]);
   const [nombreCommandes, setNombreCommandes] = useState(0);
   const [revenuTotal, setRevenuTotal] = useState(0);
+  const [dailyRevenue, setDailyRevenue] = useState<RevenueData[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<RevenueData[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
 
@@ -42,11 +55,43 @@ const VueDEnsembleTableauDeBord = () => {
           setNombreCommandes(donneesCommandes.data.length);
         }
 
-        if (Array.isArray(donneesOrders)) {
-          const totalRevenue = donneesOrders.reduce((sum, order) => {
-            return sum + (order?.price_details?.final_total || 0);
+        if (donneesOrders.success && Array.isArray(donneesOrders.data)) {
+          // Calculate total revenue
+          setNombreCommandes(donneesOrders.data.length);
+
+          const total = donneesOrders.data.reduce((sum, order) => {
+            return sum + (order.price_details?.final_total || 0);
           }, 0);
-          setRevenuTotal(totalRevenue);
+          setRevenuTotal(total);
+
+          // Process daily revenue
+          const dailyRevenueMap = new Map<string, number>();
+          const monthlyRevenueMap = new Map<string, number>();
+
+          donneesOrders.data.forEach((order: Order) => {
+            const date = new Date(order.created_at);
+            const dailyKey = date.toISOString().split('T')[0];
+            const monthlyKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            
+            const amount = order.price_details?.final_total || 0;
+            
+            dailyRevenueMap.set(dailyKey, (dailyRevenueMap.get(dailyKey) || 0) + amount);
+            monthlyRevenueMap.set(monthlyKey, (monthlyRevenueMap.get(monthlyKey) || 0) + amount);
+          });
+
+          // Convert to arrays and sort
+          const dailyData = Array.from(dailyRevenueMap, ([date, amount]) => ({
+            date,
+            amount
+          })).sort((a, b) => a.date.localeCompare(b.date));
+
+          const monthlyData = Array.from(monthlyRevenueMap, ([date, amount]) => ({
+            date,
+            amount
+          })).sort((a, b) => a.date.localeCompare(b.date));
+
+          setDailyRevenue(dailyData);
+          setMonthlyRevenue(monthlyData);
         }
       } catch (err) {
         console.error('Erreur lors de la récupération des données du tableau de bord :', err);
@@ -95,9 +140,9 @@ const VueDEnsembleTableauDeBord = () => {
           icon={<Package className="w-6 h-6 text-[#5a0c1a]" />}
           alert={produitsFaibleStock > 0 ? `${produitsFaibleStock} produits en stock faible` : undefined}
         />
-        <StatCard
-          title="Commandes Actives"
-          value={nombreCommandes.toString()}
+         <StatCard
+          title="Commandes"
+          value={`${nombreCommandes} ${nombreCommandes > 1 ? 'commandes' : 'commande'}`}
           icon={<ShoppingCart className="w-6 h-6 text-[#5a0c1a]" />}
         />
         <StatCard
@@ -109,7 +154,7 @@ const VueDEnsembleTableauDeBord = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <VisitorChart visitors={visiteurs} />
-        {produits.length > 0 && <RecentProducts products={produits.slice(0, 5)} />}
+        <RevenueChart dailyRevenue={dailyRevenue} monthlyRevenue={monthlyRevenue} />
       </div>
     </div>
   );
