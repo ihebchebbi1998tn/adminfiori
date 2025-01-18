@@ -112,7 +112,9 @@ const ProductsPage = () => {
       filtered = filtered.filter(product =>
         product.nom_product.toLowerCase().includes(lowercasedSearchTerm) ||
         product.reference_product.toLowerCase().includes(lowercasedSearchTerm) ||
-        product.category_product.toLowerCase().includes(lowercasedSearchTerm)
+        product.category_product.toLowerCase().includes(lowercasedSearchTerm) ||
+        product.description_product.toLowerCase().includes(lowercasedSearchTerm)
+
       );
     }
 
