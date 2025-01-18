@@ -28,7 +28,7 @@ const VisitorChart: React.FC<VisitorChartProps> = ({ visitors }) => {
   const maxVisitors = Math.max(...Object.values(visitorsByDate));
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-[#5a0c1a]/20">
+    <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="flex items-center gap-2 mb-6">
         <BarChart className="w-5 h-5 text-[#5a0c1a]" />
         <h3 className="text-lg font-semibold">Visitor Trends</h3>
