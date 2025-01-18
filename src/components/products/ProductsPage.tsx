@@ -6,69 +6,68 @@ import DeleteProductModal from './DeleteProductModal';
 import { fetchProducts } from '../../utils/api/products';
 import { Product } from '../../types/products';
 
-// Configuration Constants
 const PRODUCT_OPTIONS = {
   'le-monde-fiori': {
     label: 'Le Monde Fiori',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['histoire', 'collection', 'dna'],
-      },
-    },
+        itemGroups: ['Histoire', 'Collection', 'DNA']
+      }
+    }
   },
   'pret-a-porter': {
     label: 'Prêt à Porter',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'pollo'],
+        itemGroups: ['Costumes', 'Blazers', 'Chemises', 'Pantalons', 'Polo']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['chemises', 'robes', 'vestes'],
-      },
-    },
+        itemGroups: ['Chemises', 'Robes', 'Vestes']
+      }
+    }
   },
   'accessoires': {
     label: 'Accessoires',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes', 'porte-cles'],
+        itemGroups: ['Portefeuilles', 'Ceintures', 'Cravates', 'Mallettes', 'Porte-cartes', 'Porte-clés']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['sacs-a-main'],
-      },
-    },
+        itemGroups: ['Sacs à main']
+      }
+    }
   },
   'sur-mesure': {
     label: 'Sur Mesure',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['portefeuilles', 'ceintures'],
+        itemGroups: ['Portefeuilles', 'Ceintures']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['sacs-a-main'],
-      },
-    },
+        itemGroups: ['Sacs à main']
+      }
+    }
   },
   'outlet': {
     label: 'Outlet',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'pollo'],
+        itemGroups: ['Costumes', 'Blazers', 'Chemises', 'Pantalons', 'Polo']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['chemises', 'robes', 'vestes'],
-      },
-    },
-  },
+        itemGroups: ['Chemises', 'Robes', 'Vestes']
+      }
+    }
+  }
 } as const;
 
 const ProductsPage = () => {
@@ -82,6 +81,8 @@ const ProductsPage = () => {
   const [selectedType, setSelectedType] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedItemGroup, setSelectedItemGroup] = useState('');
+  const [hasDiscount, setHasDiscount] = useState('');
+  const [inStock, setInStock] = useState('');
 
   useEffect(() => {
     loadProducts();
@@ -89,7 +90,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     filterProducts();
-  }, [searchTerm, products, selectedType, selectedCategory, selectedItemGroup]);
+  }, [searchTerm, selectedType, selectedCategory, selectedItemGroup, hasDiscount, inStock, products]);
 
   const loadProducts = async () => {
     try {
@@ -97,7 +98,7 @@ const ProductsPage = () => {
       setProducts(data);
       setFilteredProducts(data);
     } catch (err) {
-      setError('Failed to fetch products');
+      setError('Échec du chargement des produits');
     } finally {
       setLoading(false);
     }
@@ -127,6 +128,18 @@ const ProductsPage = () => {
       filtered = filtered.filter(product => product.itemgroup_product === selectedItemGroup);
     }
 
+    if (hasDiscount) {
+      filtered = filtered.filter(product =>
+        hasDiscount === 'oui' ? product.discount_product > 0 : product.discount_product === 0
+      );
+    }
+
+    if (inStock) {
+      filtered = filtered.filter(product =>
+        inStock === 'oui' ? product.qnty_product > 0 : product.qnty_product === 0
+      );
+    }
+
     setFilteredProducts(filtered);
   };
 
@@ -134,25 +147,11 @@ const ProductsPage = () => {
     setDeleteProduct(product);
   };
 
-  const getCategories = () => {
-    if (!selectedType) return [];
-    return Object.entries(PRODUCT_OPTIONS[selectedType].categories);
-  };
-
-  const getItemGroups = () => {
-    if (!selectedType || !selectedCategory) return [];
-    return PRODUCT_OPTIONS[selectedType].categories[selectedCategory]?.itemGroups || [];
-  };
-
   if (showAddPage) {
-    return (
-      <AddProductPage
-        onBack={() => {
-          setShowAddPage(false);
-          loadProducts();
-        }}
-      />
-    );
+    return <AddProductPage onBack={() => {
+      setShowAddPage(false);
+      loadProducts();
+    }} />;
   }
 
   if (loading) {
@@ -166,88 +165,97 @@ const ProductsPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold text-[#5a0c1a]">Products</h2>
+        <h2 className="text-2xl font-bold text-[#5a0c1a]">Produits</h2>
         <button
           onClick={() => setShowAddPage(true)}
           className="px-4 py-2 bg-[#5a0c1a] text-white rounded-lg hover:bg-[#5a0c1a]/90 transition-colors flex items-center gap-2"
         >
           <Plus className="w-5 h-5" />
-          Add New Product
+          Ajouter un nouveau produit
         </button>
       </div>
 
-      <div className="mt-4 space-y-4">
+      <div className="mt-4">
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for products..."
+          placeholder="Rechercher des produits..."
           className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
         />
+      </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <select
-            value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setSelectedCategory('');
-              setSelectedItemGroup('');
-            }}
-            className="p-2 border rounded-lg"
-          >
-            <option value="">Select Type</option>
-            {Object.entries(PRODUCT_OPTIONS).map(([key, value]) => (
-              <option key={key} value={key}>
-                {value.label}
-              </option>
-            ))}
-          </select>
+      <div className="flex flex-wrap gap-4 mt-4">
+        <select
+          value={selectedType}
+          onChange={(e) => setSelectedType(e.target.value)}
+          className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        >
+          <option value="">Type</option>
+          {Object.entries(PRODUCT_OPTIONS).map(([key, { label }]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
 
-          <select
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setSelectedItemGroup('');
-            }}
-            className="p-2 border rounded-lg"
-            disabled={!selectedType}
-          >
-            <option value="">Select Category</option>
-            {getCategories().map(([key, value]) => (
-              <option key={key} value={key}>
-                {value.label}
-              </option>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        >
+          <option value="">Catégorie</option>
+          {selectedType &&
+            Object.entries(PRODUCT_OPTIONS[selectedType].categories).map(([key, { label }]) => (
+              <option key={key} value={key}>{label}</option>
             ))}
-          </select>
+        </select>
 
-          <select
-            value={selectedItemGroup}
-            onChange={(e) => setSelectedItemGroup(e.target.value)}
-            className="p-2 border rounded-lg"
-            disabled={!selectedCategory}
-          >
-            <option value="">Select Item Group</option>
-            {getItemGroups().map(itemGroup => (
-              <option key={itemGroup} value={itemGroup}>
-                {itemGroup}
-              </option>
+        <select
+          value={selectedItemGroup}
+          onChange={(e) => setSelectedItemGroup(e.target.value)}
+          className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        >
+          <option value="">Groupe d'articles</option>
+          {selectedType && selectedCategory &&
+            PRODUCT_OPTIONS[selectedType].categories[selectedCategory].itemGroups.map(group => (
+              <option key={group} value={group}>{group}</option>
             ))}
-          </select>
-        </div>
+        </select>
+
+        <select
+          value={hasDiscount}
+          onChange={(e) => setHasDiscount(e.target.value)}
+          className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        >
+          <option value="">En promotion</option>
+          <option value="oui">Oui</option>
+          <option value="non">Non</option>
+        </select>
+
+        <select
+          value={inStock}
+          onChange={(e) => setInStock(e.target.value)}
+          className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
+        >
+          <option value="">En stock</option>
+          <option value="oui">Oui</option>
+          <option value="non">Non</option>
+        </select>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">{error}</div>
+        <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">
+          {error}
+        </div>
       )}
 
       {filteredProducts.length === 0 ? (
         <div className="text-center p-8 bg-white/10 backdrop-blur-lg rounded-xl border border-[#5a0c1a]/20">
-          <p className="text-gray-600">No products found. Add your first product!</p>
+          <p className="text-gray-600">Aucun produit trouvé. Ajoutez votre premier produit !</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
-            <ProductCard
+            <ProductCard 
               key={product.id_product}
               product={product}
               onUpdate={loadProducts}
