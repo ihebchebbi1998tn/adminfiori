@@ -14,7 +14,7 @@ const RecentProducts: React.FC<{ products: Product[] }> = ({ products }) => {
   const getImageUrl = (imagePath: string) => {
     return imagePath.startsWith('http') 
       ? imagePath 
-      : `https://respizenmedical.com/fiori/${imagePath}`;
+      : `https://www.fioriforyou.com/backfiori/${imagePath}`;
   };
 
   return (

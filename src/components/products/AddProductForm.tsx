@@ -102,7 +102,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose, onSuccess }) =
     }
 
     try {
-      const response = await fetch('https://respizenmedical.com/fiori/add_article.php', {
+      const response = await fetch('https://www.fioriforyou.com/backfiori/add_article.php', {
         method: 'POST',
         body: formData,
       });

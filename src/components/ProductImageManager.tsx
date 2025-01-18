@@ -20,7 +20,7 @@ const ProductImageManager: React.FC<ProductImageManagerProps> = ({ product, onCl
 
   const handleImageDelete = async (imageNumber: number) => {
     try {
-      const response = await fetch('https://respizenmedical.com/fiori/update_images_products.php', {
+      const response = await fetch('https://www.fioriforyou.com/backfiori/update_images_products.php', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const ProductImageManager: React.FC<ProductImageManagerProps> = ({ product, onCl
         }
       });
 
-      const response = await fetch('https://respizenmedical.com/fiori/update_images_products.php', {
+      const response = await fetch('https://www.fioriforyou.com/backfiori/update_images_products.php', {
         method: 'POST', // Changed to POST as per API requirements
         body: formData
       });
@@ -119,7 +119,7 @@ const ProductImageManager: React.FC<ProductImageManagerProps> = ({ product, onCl
                       <div className="relative group">
                         <img
                           src={newImage ? URL.createObjectURL(newImage) : 
-                            `https://respizenmedical.com/fiori/${currentImage}`}
+                            `https://www.fioriforyou.com/backfiori/${currentImage}`}
                           alt=""
                           className="w-full h-full object-cover"
                         />

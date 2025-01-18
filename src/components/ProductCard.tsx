@@ -49,7 +49,7 @@ const ProductGallery: React.FC<{ images: string[]; productName: string }> = ({ i
     <div className="space-y-2">
       <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
         <img
-          src={`https://respizenmedical.com/fiori/${images[currentImage]}`}
+          src={`https://www.fioriforyou.com/backfiori/${images[currentImage]}`}
           alt={`${productName} - Image ${currentImage + 1}`}
           className="w-full h-full object-cover"
         />
@@ -82,7 +82,7 @@ const ProductGallery: React.FC<{ images: string[]; productName: string }> = ({ i
               }`}
             >
               <img
-                src={`https://respizenmedical.com/fiori/${image}`}
+                src={`https://www.fioriforyou.com/backfiori/${image}`}
                 alt={`${productName} - Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -202,7 +202,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
       >
         <div className="relative h-40 bg-gray-50">
           <img
-            src={`https://respizenmedical.com/fiori/${images[currentImage]}`}
+            src={`https://www.fioriforyou.com/backfiori/${images[currentImage]}`}
             alt={product.nom_product}
             className="w-full h-full object-cover"
           />

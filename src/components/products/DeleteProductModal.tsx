@@ -15,7 +15,7 @@ const DeleteProductModal: React.FC<DeleteModalProps> = ({ product, onClose, onSu
     setLoading(true);
     try {
       const response = await fetch(
-        `https://respizenmedical.com/fiori/delete_product.php?id_product=${product.id_product}`,
+        `https://www.fioriforyou.com/backfiori/delete_product.php?id_product=${product.id_product}`,
         { method: 'DELETE' }
       );
 

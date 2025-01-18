@@ -15,7 +15,7 @@ const NewsLetter: React.FC = () => {
     const fetchEmails = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://respizenmedical.com/fiori/get_emails.php');
+        const response = await fetch('https://www.fioriforyou.com/backfiori/get_emails.php');
         const data = await response.json();
         if (data.status === 'success') {
           setEmails(data.data);

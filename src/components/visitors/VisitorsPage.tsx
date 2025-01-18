@@ -13,7 +13,7 @@ const VisitorsPage: React.FC = () => {
     const fetchVisitors = async () => {
       try {
         const response = await fetch(
-          'https://respizenmedical.com/fiori/get_visitors.php'
+          'https://www.fioriforyou.com/backfiori/get_visitors.php'
         );
         const result = await response.json();
 

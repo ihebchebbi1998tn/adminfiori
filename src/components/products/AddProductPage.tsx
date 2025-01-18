@@ -233,7 +233,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     });
 
     try {
-      const response = await fetch('https://respizenmedical.com/fiori/add.php', {
+      const response = await fetch('https://www.fioriforyou.com/backfiori/add.php', {
         method: 'POST',
         body: submitFormData,
       });

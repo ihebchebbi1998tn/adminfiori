@@ -191,7 +191,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
     };
 
     try {
-      const response = await fetch('https://respizenmedical.com/fiori/update_products.php', {
+      const response = await fetch('https://www.fioriforyou.com/backfiori/update_products.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
             }
           });
 
-          const imageResponse = await fetch('https://respizenmedical.com/fiori/update_product_images.php', {
+          const imageResponse = await fetch('https://www.fioriforyou.com/backfiori/update_product_images.php', {
             method: 'POST',
             body: imageFormData
           });
