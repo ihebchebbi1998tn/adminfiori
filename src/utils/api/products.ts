@@ -2,7 +2,7 @@ import { Product } from '../../types/products';
 
 export const fetchProducts = async (): Promise<Product[]> => {
   try {
-    const response = await fetch('https://www.fioriforyou.com/backfiori/get_all_articles.php');
+    const response = await fetch('https://www.fioriforyou.com/backfiori/get_all_articlesback.php');
     const data = await response.json();
     
     if (Array.isArray(data)) {

@@ -30,7 +30,7 @@ const VueDEnsembleTableauDeBord = () => {
     const recupererDonnees = async () => {
       try {
         const [produitsRes, visiteursRes, commandesRes, ordersRes] = await Promise.all([
-          fetch('https://www.fioriforyou.com/backfiori/get_all_articles.php'),
+          fetch('https://www.fioriforyou.com/backfiori/get_all_articlesback.php'),
           fetch('https://www.fioriforyou.com/backfiori/get_visitors.php'),
           fetch('https://www.fioriforyou.com/backfiori/get_orders.php'),
           fetch('https://www.fioriforyou.com/backfiori/get_users_orders.php')
