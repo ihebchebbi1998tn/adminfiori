@@ -9,21 +9,24 @@ const VueDEnsembleTableauDeBord = () => {
   const [produits, setProduits] = useState([]);
   const [visiteurs, setVisiteurs] = useState([]);
   const [nombreCommandes, setNombreCommandes] = useState(0);
+  const [revenuTotal, setRevenuTotal] = useState(0);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState('');
 
   useEffect(() => {
     const recupererDonnees = async () => {
       try {
-        const [produitsRes, visiteursRes, commandesRes] = await Promise.all([
+        const [produitsRes, visiteursRes, commandesRes, ordersRes] = await Promise.all([
           fetch('https://respizenmedical.com/fiori/get_all_articles.php'),
           fetch('https://respizenmedical.com/fiori/get_visitors.php'),
-          fetch('https://respizenmedical.com/fiori/get_orders.php')
+          fetch('https://respizenmedical.com/fiori/get_orders.php'),
+          fetch('https://respizenmedical.com/fiori/get_users_orders.php')
         ]);
 
         const donneesProduits = await produitsRes.json();
         const donneesVisiteurs = await visiteursRes.json();
         const donneesCommandes = await commandesRes.json();
+        const donneesOrders = await ordersRes.json();
 
         if (Array.isArray(donneesProduits)) {
           setProduits(donneesProduits);
@@ -39,6 +42,12 @@ const VueDEnsembleTableauDeBord = () => {
           setNombreCommandes(donneesCommandes.data.length);
         }
 
+        if (Array.isArray(donneesOrders)) {
+          const totalRevenue = donneesOrders.reduce((sum, order) => {
+            return sum + (order?.price_details?.final_total || 0);
+          }, 0);
+          setRevenuTotal(totalRevenue);
+        }
       } catch (err) {
         console.error('Erreur lors de la récupération des données du tableau de bord :', err);
         setErreur('Échec de la récupération des données du tableau de bord');
@@ -66,7 +75,6 @@ const VueDEnsembleTableauDeBord = () => {
     );
   }
 
-  const revenuTotal = calculateTotalRevenue(produits);
   const totalProduits = produits.length;
   const totalVisiteurs = visiteurs.length;
   const produitsFaibleStock = produits.filter(p => parseInt(p.qnty_product) < 10).length;
@@ -78,7 +86,7 @@ const VueDEnsembleTableauDeBord = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Revenu Total"
-          value={`- TND`}
+          value={`${revenuTotal} TND`}
           icon={<DollarSign className="w-6 h-6 text-[#5a0c1a]" />}
         />
         <StatCard
