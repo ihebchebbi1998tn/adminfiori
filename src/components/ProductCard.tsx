@@ -251,24 +251,44 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
           </div>
 
           <div className="grid grid-cols-6 gap-0.5 text-[10px] bg-gray-50 p-1 rounded">
-  {product.itemgroup_product === 'costumes'
-    ? ['48', '50', '52', '54', '56', '58'].map((size) => (
-        <div key={size} className="text-center">
-          <div className="font-medium text-gray-600">{size}</div>
-          <div className="bg-white rounded">
-            {product[`${size}_size` as keyof Product]}
-          </div>
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(product.itemgroup_product) ? (
+    // For these product groups, show a message instead of sizes
+    <div className="col-span-6 text-center">
+      <p>Quantité : {product.qnty_product}</p>
+    </div>
+  ) : product.itemgroup_product === 'costumes' ? (
+    // Render costume sizes
+    ['48', '50', '52', '54', '56', '58'].map((size) => (
+      <div key={size} className="text-center">
+        <div className="font-medium text-gray-600">{size}</div>
+        <div className="bg-white rounded">
+          {product[`${size}_size` as keyof Product]}
         </div>
-      ))
-    : ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
-        <div key={size} className="text-center">
-          <div className="font-medium text-gray-600">{size}</div>
-          <div className="bg-white rounded">
-            {product[`${size.toLowerCase()}_size` as keyof Product]}
-          </div>
+      </div>
+    ))
+  ) : product.itemgroup_product === 'vestes' ? (
+    // Render veste sizes
+    ['38', '40', '42', '44', '46', '48'].map((size) => (
+      <div key={size} className="text-center">
+        <div className="font-medium text-gray-600">{size}</div>
+        <div className="bg-white rounded">
+          {product[`${size}_size` as keyof Product]}
         </div>
-      ))}
+      </div>
+    ))
+  ) : (
+    // Render standard sizes for other products
+    ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
+      <div key={size} className="text-center">
+        <div className="font-medium text-gray-600">{size}</div>
+        <div className="bg-white rounded">
+          {product[`${size.toLowerCase()}_size` as keyof Product]}
+        </div>
+      </div>
+    ))
+  )}
 </div>
+
 
       
 
