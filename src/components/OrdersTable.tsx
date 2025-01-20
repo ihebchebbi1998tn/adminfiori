@@ -81,57 +81,8 @@ const formatDate = (dateString: string): string => {
   });
 };
 
-// Internal Components
-const OrderStatusTimeline: React.FC<{ orderStatus: OrderStatus }> = ({ orderStatus }) => {
-  const steps = [
-    { 
-      label: 'En traitement', 
-      icon: Package, 
-      completed: true,
-      date: null 
-    },
-    { 
-      label: 'Expédié', 
-      icon: Truck, 
-      completed: !!orderStatus.shipped_at,
-      date: orderStatus.shipped_at
-    },
-    { 
-      label: 'Livré', 
-      icon: CheckCircle, 
-      completed: !!orderStatus.delivered_at,
-      date: orderStatus.delivered_at
-    }
-  ];
 
-  return (
-    <div className="w-full py-4">
-      <div className="flex justify-between">
-        {steps.map((step, index) => (
-          <div key={step.label} className="flex flex-col items-center relative">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step.completed ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
-            }`}>
-              <step.icon className="w-5 h-5" />
-            </div>
-            <div className="text-sm font-medium mt-2">{step.label}</div>
-            {step.date && (
-              <div className="text-xs text-gray-500 mt-1">
-                {formatDate(step.date)}
-              </div>
-            )}
-            {index < steps.length - 1 && (
-              <div className={`absolute top-5 left-10 w-[calc(100%-2.5rem)] h-0.5 ${
-                steps[index + 1].completed ? 'bg-green-500' : 'bg-gray-200'
-              }`} />
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
+  
 const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
   return (
     <div className="bg-gray-50 rounded-lg p-6">

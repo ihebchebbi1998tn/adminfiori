@@ -129,11 +129,12 @@ const VueDEnsembleTableauDeBord = () => {
       <h2 className="text-2xl font-bold text-[#5a0c1a]">Vue d'ensemble du tableau de bord</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Revenu Total"
-          value={`${revenuTotal} TND`}
-          icon={<DollarSign className="w-6 h-6 text-[#5a0c1a]" />}
-        />
+      <StatCard
+  title="Revenu Total"
+  value={`${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'TND' }).format(revenuTotal)}`}
+  icon={<DollarSign className="w-6 h-6 text-[#5a0c1a]" />}
+/>
+
         <StatCard
           title="Total Produits"
           value={totalProduits}
