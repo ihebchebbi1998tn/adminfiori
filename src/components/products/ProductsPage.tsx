@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import ProductCard from '../ProductCard';
 import AddProductPage from './AddProductPage';
 import DeleteProductModal from './DeleteProductModal';
-import { fetchProducts } from '../../utils/api/products';
+import { getUpdateStatus, fetchProducts,setUpdateStatus } from '../../utils/api/products';
 import { Product } from '../../types/products';
 
 const PRODUCT_OPTIONS = {
@@ -85,12 +85,40 @@ const ProductsPage = () => {
   const [inStock, setInStock] = useState('');
 
   useEffect(() => {
+    // Initial load of products
     loadProducts();
   }, []);
 
   useEffect(() => {
+    // Filter products whenever any of the filters change
     filterProducts();
   }, [searchTerm, selectedType, selectedCategory, selectedItemGroup, hasDiscount, inStock, products]);
+
+  useEffect(() => {
+    // Check update status every 5 seconds
+    const intervalId = setInterval(async () => {
+      const updateStatus = getUpdateStatus();
+
+      if (updateStatus === 1) {
+        try {
+          setLoading(true);
+          // Fetch products if updated
+          const data = await fetchProducts();
+          setProducts(data);
+          setFilteredProducts(data);
+          // After fetching, reset the update status
+          setUpdateStatus(0);
+        } catch (err) {
+          setError('Échec du chargement des produits');
+        } finally {
+          setLoading(false);
+        }
+      }
+    }, 5000); // Run every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   const loadProducts = async () => {
     try {

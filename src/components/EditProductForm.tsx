@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, Loader } from 'lucide-react';
+import { fetchProducts } from '../utils/api/products';
+import { setUpdateStatus } from '../utils/api/products';
 
-// Configuration Constants
 const PRODUCT_OPTIONS = {
   'le-monde-fiori': {
     label: 'Le Monde Fiori',
@@ -121,6 +122,7 @@ interface EditProductFormProps {
 }
 
 const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onSuccess }) => {
+  
   const [formData, setFormData] = useState<Product>(product);
   const [images, setImages] = useState<{ [key: string]: File | null }>({
     img_product: null,
@@ -180,64 +182,71 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
 
-    const jsonData = {
-      id_product: product.id_product,
-      ...formData
-    };
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
 
-    try {
-      const response = await fetch('https://www.fioriforyou.com/backfiori/update_products.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update product');
-      }
-
-      const result = await response.json();
-      
-      if (result.status === 'success') {
-        // Handle image uploads if any
-        if (Object.values(images).some(img => img !== null)) {
-          const imageFormData = new FormData();
-          imageFormData.append('id_product', product.id_product.toString());
-          
-          Object.entries(images).forEach(([key, file]) => {
-            if (file) {
-              imageFormData.append(key, file);
-            }
-          });
-
-          const imageResponse = await fetch('https://www.fioriforyou.com/backfiori/update_product_images.php', {
-            method: 'POST',
-            body: imageFormData
-          });
-
-          if (!imageResponse.ok) {
-            throw new Error('Failed to update product images');
-          }
-        }
-
-        onSuccess();
-        onClose();
-      } else {
-        throw new Error(result.message || 'Failed to update product');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update product');
-    } finally {
-      setLoading(false);
-    }
+  const jsonData = {
+    id_product: product.id_product,
+    ...formData
   };
+
+  try {
+    const response = await fetch('https://www.fioriforyou.com/backfiori/update_products.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(jsonData)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update product');
+    }
+
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      // Handle image uploads if any
+      if (Object.values(images).some(img => img !== null)) {
+        const imageFormData = new FormData();
+        imageFormData.append('id_product', product.id_product.toString());
+        
+        Object.entries(images).forEach(([key, file]) => {
+          if (file) {
+            imageFormData.append(key, file);
+          }
+        });
+
+        const imageResponse = await fetch('https://www.fioriforyou.com/backfiori/update_product_images.php', {
+          method: 'POST',
+          body: imageFormData
+        });
+
+        if (!imageResponse.ok) {
+          throw new Error('Failed to update product images');
+        }
+      }
+
+      const products = await fetchProducts();  // Calling fetchProducts
+      console.log(products);  // You can use this data to update your state or display on the UI
+      setUpdateStatus(1);  // Mark that the update happened
+
+      // Trigger success callback
+      onSuccess();
+      onClose();
+    } else {
+      throw new Error(result.message || 'Failed to update product');
+    }
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Failed to update product');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -506,3 +515,4 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
 };
 
 export default EditProductForm;
+
