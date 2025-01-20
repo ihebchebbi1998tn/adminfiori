@@ -3,29 +3,20 @@ import { Plus } from 'lucide-react';
 import ProductCard from '../ProductCard';
 import AddProductPage from './AddProductPage';
 import DeleteProductModal from './DeleteProductModal';
-import { getUpdateStatus, fetchProducts,setUpdateStatus } from '../../utils/api/products';
+import { getUpdateStatus, fetchProducts, setUpdateStatus } from '../../utils/api/products';
 import { Product } from '../../types/products';
 
 const PRODUCT_OPTIONS = {
-  'le-monde-fiori': {
-    label: 'Le Monde Fiori',
-    categories: {
-      homme: {
-        label: 'Homme',
-        itemGroups: ['Histoire', 'Collection', 'DNA']
-      }
-    }
-  },
   'pret-a-porter': {
     label: 'Prêt à Porter',
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['Costumes', 'Blazers', 'Chemises', 'Pantalons', 'Polo']
+        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'polo']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['Chemises', 'Robes', 'Vestes']
+        itemGroups: ['chemises', 'robes', 'vestes']
       }
     }
   },
@@ -34,11 +25,11 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['Portefeuilles', 'Ceintures', 'Cravates', 'Mallettes', 'Porte-cartes', 'Porte-clés']
+        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes', 'porte-cles']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['Sacs à main']
+        itemGroups: ['sacs-a-main']
       }
     }
   },
@@ -47,11 +38,11 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['Portefeuilles', 'Ceintures']
+        itemGroups: ['portefeuilles', 'ceintures']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['Sacs à main']
+        itemGroups: ['sacs-a-main']
       }
     }
   },
@@ -60,11 +51,11 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['Costumes', 'Blazers', 'Chemises', 'Pantalons', 'Polo']
+        itemGroups: ['costumes', 'blazers', 'chemises', 'pantalons', 'polo']
       },
       femme: {
         label: 'Femme',
-        itemGroups: ['Chemises', 'Robes', 'Vestes']
+        itemGroups: ['chemises', 'robes', 'vestes']
       }
     }
   }
@@ -83,48 +74,29 @@ const ProductsPage = () => {
   const [selectedItemGroup, setSelectedItemGroup] = useState('');
   const [hasDiscount, setHasDiscount] = useState('');
   const [inStock, setInStock] = useState('');
+  const [isRefetching, setIsRefetching] = useState(false);
 
   useEffect(() => {
-    // Initial load of products
     loadProducts();
-  }, []);
-
-  useEffect(() => {
-    // Filter products whenever any of the filters change
-    filterProducts();
-  }, [searchTerm, selectedType, selectedCategory, selectedItemGroup, hasDiscount, inStock, products]);
-
-  useEffect(() => {
-    // Check update status every 5 seconds
-    const intervalId = setInterval(async () => {
-      const updateStatus = getUpdateStatus();
-
-      if (updateStatus === 1) {
-        try {
-          setLoading(true);
-          // Fetch products if updated
-          const data = await fetchProducts();
-          setProducts(data);
-          setFilteredProducts(data);
-          // After fetching, reset the update status
-          setUpdateStatus(0);
-        } catch (err) {
-          setError('Échec du chargement des produits');
-        } finally {
-          setLoading(false);
-        }
-      }
-    }, 5000); // Run every 5 seconds
-
-    // Cleanup interval on component unmount
+    const intervalId = setInterval(refetchIfNeeded, 5000);
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    filterProducts();
+  }, [searchTerm, selectedType, selectedCategory, selectedItemGroup, hasDiscount, inStock, products]);
 
   const loadProducts = async () => {
     try {
       const data = await fetchProducts();
-      setProducts(data);
-      setFilteredProducts(data);
+      setProducts(prevProducts => {
+        // Only update if data is different
+        if (JSON.stringify(prevProducts) !== JSON.stringify(data)) {
+          return data;
+        }
+        return prevProducts;
+      });
+      setError('');
     } catch (err) {
       setError('Échec du chargement des produits');
     } finally {
@@ -132,17 +104,35 @@ const ProductsPage = () => {
     }
   };
 
+  const refetchIfNeeded = async () => {
+    const updateStatus = await getUpdateStatus();
+    if (updateStatus === 1 && !isRefetching) {
+      setIsRefetching(true);
+      try {
+        const data = await fetchProducts();
+        setProducts(prevProducts => {
+          if (JSON.stringify(prevProducts) !== JSON.stringify(data)) {
+            return data;
+          }
+          return prevProducts;
+        });
+        await setUpdateStatus(0);
+      } finally {
+        setIsRefetching(false);
+      }
+    }
+  };
+
   const filterProducts = () => {
-    let filtered = products;
+    let filtered = [...products];
 
     if (searchTerm) {
-      const lowercasedSearchTerm = searchTerm.toLowerCase();
+      const lowercasedTerm = searchTerm.toLowerCase();
       filtered = filtered.filter(product =>
-        product.nom_product.toLowerCase().includes(lowercasedSearchTerm) ||
-        product.reference_product.toLowerCase().includes(lowercasedSearchTerm) ||
-        product.category_product.toLowerCase().includes(lowercasedSearchTerm) ||
-        product.description_product.toLowerCase().includes(lowercasedSearchTerm)
-
+        product.nom_product.toLowerCase().includes(lowercasedTerm) ||
+        product.reference_product.toLowerCase().includes(lowercasedTerm) ||
+        product.category_product.toLowerCase().includes(lowercasedTerm) ||
+        product.description_product.toLowerCase().includes(lowercasedTerm)
       );
     }
 
@@ -173,6 +163,19 @@ const ProductsPage = () => {
     setFilteredProducts(filtered);
   };
 
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newType = e.target.value;
+    setSelectedType(newType);
+    setSelectedCategory('');
+    setSelectedItemGroup('');
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    setSelectedItemGroup('');
+  };
+
   const handleDeleteProduct = (product: Product) => {
     setDeleteProduct(product);
   };
@@ -182,14 +185,6 @@ const ProductsPage = () => {
       setShowAddPage(false);
       loadProducts();
     }} />;
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
-      </div>
-    );
   }
 
   return (
@@ -218,7 +213,7 @@ const ProductsPage = () => {
       <div className="flex flex-wrap gap-4 mt-4">
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value)}
+          onChange={handleTypeChange}
           className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
         >
           <option value="">Type</option>
@@ -229,14 +224,13 @@ const ProductsPage = () => {
 
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          onChange={handleCategoryChange}
           className="p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5a0c1a]"
         >
           <option value="">Catégorie</option>
-          {selectedType &&
-            Object.entries(PRODUCT_OPTIONS[selectedType].categories).map(([key, { label }]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
+          {selectedType && Object.entries(PRODUCT_OPTIONS[selectedType].categories).map(([key, { label }]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
         </select>
 
         <select
@@ -278,9 +272,13 @@ const ProductsPage = () => {
         </div>
       )}
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="text-center p-8 bg-white/10 backdrop-blur-lg rounded-xl border border-[#5a0c1a]/20">
-          <p className="text-gray-600">Aucun produit trouvé. Ajoutez votre premier produit !</p>
+          <p className="text-gray-600">Aucun produit trouvé. Ajoutez votre premier produit!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -294,8 +292,7 @@ const ProductsPage = () => {
           ))}
         </div>
       )}
-
-      {deleteProduct && (
+{deleteProduct && (
         <DeleteProductModal
           product={deleteProduct}
           onClose={() => setDeleteProduct(null)}
