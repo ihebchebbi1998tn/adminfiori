@@ -376,16 +376,47 @@ const EditProductForm: React.FC<EditProductFormProps> = ({ product, onClose, onS
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">Quantité</label>
-              <input
-                type="number"
-                name="qnty_product"
-                value={formData.qnty_product}
-                onChange={handleChange}
-                className="w-full p-2 border rounded-lg"
-              />
-            </div>
+            <div className="md:col-span-2 grid grid-cols-6 gap-4">
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) ? (
+    // Render qnty_product input field
+    <div className="col-span-6">
+      <label className="block text-sm font-medium mb-1">Quantité</label>
+      <input
+        type="number"
+        name="qnty_product"
+        value={formData.qnty_product}
+        onChange={handleChange}
+        className="w-full p-2 border rounded-lg"
+      />
+    </div>
+  )   : (
+    <div className="col-span-6">
+                  <label className="block text-sm font-medium mb-1">La quantité sera la somme des tailles ici (calculé automatiquement)</label>
+
+  </div>
+  )}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
   {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) ? null : (
     formData.itemgroup_product === 'costumes' ? (
