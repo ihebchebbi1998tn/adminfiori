@@ -13,6 +13,7 @@ export interface Product {
   price_product: string;
   qnty_product: string;
   "3xl_size": string;
+  "4xl_size": string;
   s_size: string;
   m_size: string;
   l_size: string;

@@ -276,6 +276,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
         </div>
       </div>
     ))
+  ) : product.itemgroup_product === 'ceintures' ? (
+    // Render veste sizes
+    ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL' , '4XL'].map((size) => (
+      <div key={size} className="text-center">
+        <div className="font-medium text-gray-600">{size}</div>
+        <div className="bg-white rounded">
+          {product[`${size}_size` as keyof Product]}
+        </div>
+      </div>
+    ))
   ) : (
     // Render standard sizes for other products
     ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (

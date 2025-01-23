@@ -15,12 +15,14 @@ interface ProductFormData {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
+  xs_size: string;
   s_size: string;
   m_size: string;
   l_size: string;
   xl_size: string;
   xxl_size: string;
   "3xl_size": string;
+  "4xl_size": string;
   "48_size": string;
   "50_size": string;
   "52_size": string;
@@ -137,12 +139,14 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     itemgroup_product: '',
     price_product: '',
     qnty_product: '',
+    xs_size: '',
     s_size: '',
     m_size: '',
     l_size: '',
     xl_size: '',
     xxl_size: '',
     "3xl_size": '',
+    "4xl_size": '',
     "48_size": '',
     "50_size": '',
     "52_size": '',
@@ -462,6 +466,25 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
         <div key={size}>
           <label htmlFor={`${size}_size`} className={labelClassName}>
             {size}
+          </label>
+          <input
+            type="number"
+            id={`${size}_size`}
+            name={`${size}_size`}
+            value={formData[`${size}_size` as keyof typeof formData] || ''}
+            onChange={handleInputChange}
+            min="0"
+            placeholder="0"
+            className={inputClassName}
+          />
+        </div>
+      ))
+    ): formData.itemgroup_product === 'ceintures' ? (
+      // Render veste sizes
+      ['xs','s', 'm', 'l', 'xl', 'xxl', '3xl' , '4xl'].map((size) => (
+        <div key={size}>
+          <label htmlFor={`${size}_size`} className={labelClassName}>
+            {size.toUpperCase()}
           </label>
           <input
             type="number"

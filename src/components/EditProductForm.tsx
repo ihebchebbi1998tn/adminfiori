@@ -96,7 +96,9 @@ interface Product {
   itemgroup_product: string;
   price_product: string;
   qnty_product: string;
+  xs_size: number;
   "3xl_size": number;
+  "4xl_size": number;
   s_size: number;
   m_size: number;
   l_size: number;
@@ -114,7 +116,6 @@ interface Product {
   related_products: string;
 }
 
-// EditProductForm Component
 interface EditProductFormProps {
   product: Product;
   onClose: () => void;
@@ -458,7 +459,23 @@ const handleSubmit = async (e: React.FormEvent) => {
           />
         </div>
       ))
-    ) : (
+    ) : formData.itemgroup_product === 'ceintures' ? (
+      // Render veste sizes
+      ['XS','S', 'M', 'L', 'XL', 'XXL', '3XL' , '4XL'].map((size) => (
+        <div key={size}>
+          <label className="block text-sm font-medium mb-1">Taille {size}</label>
+          <input
+            type="number"
+            name={`${size.toLowerCase()}_size`}
+            value={formData[`${size.toLowerCase()}_size` as keyof Product] || ''}
+            onChange={handleChange}
+            min="0"
+            className="w-full p-2 border rounded-lg"
+          />
+        </div>
+      ))
+    )
+    : (
       // Default: Render normal sizes
       ['S', 'M', 'L', 'XL', 'XXL', '3XL'].map((size) => (
         <div key={size}>
