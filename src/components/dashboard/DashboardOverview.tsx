@@ -29,45 +29,47 @@ const VueDEnsembleTableauDeBord = () => {
   useEffect(() => {
     const recupererDonnees = async () => {
       try {
+        const timestamp = new Date().getTime(); // Generate a unique timestamp
+  
         const [produitsRes, visiteursRes, commandesRes, ordersRes] = await Promise.all([
-          fetch('https://www.fioriforyou.com/backfiori/get_all_articlesback.php'),
-          fetch('https://www.fioriforyou.com/backfiori/get_visitors.php'),
-          fetch('https://www.fioriforyou.com/backfiori/get_orders.php'),
-          fetch('https://www.fioriforyou.com/backfiori/get_users_orders.php')
+          fetch(`https://www.fioriforyou.com/backfiori/get_all_articlesback.php?cache_buster=${timestamp}`),
+          fetch(`https://www.fioriforyou.com/backfiori/get_visitors.php?cache_buster=${timestamp}`),
+          fetch(`https://www.fioriforyou.com/backfiori/get_orders.php?cache_buster=${timestamp}`),
+          fetch(`https://www.fioriforyou.com/backfiori/get_users_orders.php?cache_buster=${timestamp}`)
         ]);
-
+  
         const donneesProduits = await produitsRes.json();
         const donneesVisiteurs = await visiteursRes.json();
         const donneesCommandes = await commandesRes.json();
         const donneesOrders = await ordersRes.json();
-
+  
         if (Array.isArray(donneesProduits)) {
           setProduits(donneesProduits);
         } else if (donneesProduits.status === 'success' && Array.isArray(donneesProduits.products)) {
           setProduits(donneesProduits.products);
         }
-
+  
         if (donneesVisiteurs.status === 'success' && Array.isArray(donneesVisiteurs.data)) {
           setVisiteurs(donneesVisiteurs.data);
         }
-
+  
         if (donneesCommandes.status === 'success' && Array.isArray(donneesCommandes.data)) {
           setNombreCommandes(donneesCommandes.data.length);
         }
-
+  
         if (donneesOrders.success && Array.isArray(donneesOrders.data)) {
           // Calculate total revenue
           setNombreCommandes(donneesOrders.data.length);
-
+  
           const total = donneesOrders.data.reduce((sum, order) => {
             return sum + (order.price_details?.final_total || 0);
           }, 0);
           setRevenuTotal(total);
-
+  
           // Process daily revenue
           const dailyRevenueMap = new Map<string, number>();
           const monthlyRevenueMap = new Map<string, number>();
-
+  
           donneesOrders.data.forEach((order: Order) => {
             const date = new Date(order.created_at);
             const dailyKey = date.toISOString().split('T')[0];
@@ -78,18 +80,18 @@ const VueDEnsembleTableauDeBord = () => {
             dailyRevenueMap.set(dailyKey, (dailyRevenueMap.get(dailyKey) || 0) + amount);
             monthlyRevenueMap.set(monthlyKey, (monthlyRevenueMap.get(monthlyKey) || 0) + amount);
           });
-
+  
           // Convert to arrays and sort
           const dailyData = Array.from(dailyRevenueMap, ([date, amount]) => ({
             date,
             amount
           })).sort((a, b) => a.date.localeCompare(b.date));
-
+  
           const monthlyData = Array.from(monthlyRevenueMap, ([date, amount]) => ({
             date,
             amount
           })).sort((a, b) => a.date.localeCompare(b.date));
-
+  
           setDailyRevenue(dailyData);
           setMonthlyRevenue(monthlyData);
         }
@@ -100,10 +102,10 @@ const VueDEnsembleTableauDeBord = () => {
         setChargement(false);
       }
     };
-
+  
     recupererDonnees();
   }, []);
-
+  
   if (chargement) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
