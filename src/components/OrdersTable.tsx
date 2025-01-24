@@ -255,7 +255,8 @@ const OrdersTable: React.FC = () => {
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://www.fioriforyou.com/backfiori/get_users_orders.php');
+        const timestamp = new Date().getTime(); 
+        const response = await fetch(`https://www.fioriforyou.com/backfiori/get_users_orders.php?cache_buster=${timestamp}`);
         const data = await response.json();
         if (data.data) {
           setOrders(data.data);
@@ -271,7 +272,7 @@ const OrdersTable: React.FC = () => {
     };
     fetchOrders();
   }, []);
-
+  
   useEffect(() => {
     const filtered = orders.filter(order =>
       Object.values(order.user_details).some(value =>
