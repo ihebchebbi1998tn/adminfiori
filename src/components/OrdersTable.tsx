@@ -1,244 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, SortAsc, Eye, FileText, X, CheckCircle, Clock, Truck, Package } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { Search, SortAsc, Eye, FileText, CheckCircle, Clock, Truck, Package } from 'lucide-react';
+import { Order } from '../types/order';
+import { OrderDetailsModal } from './OrderDetailsModal';
+import { formatCurrency } from '../utils/formatters';
+import { generateOrderPDF } from '../utils/pdfGenerator';
 
-// Types
-interface UserDetails {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  country: string;
-  zip_code: string;
-  order_note: string;
-}
-
-interface OrderItem {
-  item_id: string; // Matches "item_id" from the API
-  name: string; // Matches "name" from the API
-  price: number; // Matches "price" from the API
-  quantity: number; // Matches "quantity" from the API
-  total_price: number; // Matches "total_price" from the API
-  image: string; // Matches "image" from the API
-  size: string; // Matches "size" from the API
-  color: string; // Matches "color" from the API
-  personalization: string; // Matches "personalization" from the API
-  pack: string; // Matches "pack" from the API
-  box: string; // Matches "box" from the API
-}
-
-
-interface PriceDetails {
-  subtotal: number;
-  shipping_cost: number;
-  has_newsletter_discount: boolean;
-  newsletter_discount_amount: number;
-  final_total: number;
-}
-
-interface Payment {
-  method: string;
-  status: string;
-  konnect_payment_url: string | null;
-  completed_at: string | null;
-}
-
-interface OrderStatus {
-  status: string;
-  shipped_at: string | null;
-  delivered_at: string | null;
-}
-
-interface Order {
-  id: number;
-  order_id: string;
-  created_at: string;
-  user_details: UserDetails;
-  items: OrderItem[];
-  price_details: PriceDetails;
-  payment: Payment;
-  order_status: OrderStatus;
-  updated_at: string;
-}
-
-// Utility functions
-const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('fr-TN', {
-    style: 'currency',
-    currency: 'TND'
-  }).format(amount);
-};
-
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-
-  
-const OrderItemsList: React.FC<{ items: OrderItem[] }> = ({ items }) => {
-  return (
-    <div className="bg-gray-50 rounded-lg p-6">
-      <h3 className="font-semibold text-lg text-[#700100] mb-4">Articles commandés</h3>
-      <div className="space-y-4">
-        {items.map(item => (
-          <div key={item.item_id} className="flex items-center gap-4 p-4 bg-white rounded-lg">
-            <img 
-             src={`${item.image}`}
-              alt={item.name}
-              className="w-20 h-20 object-cover rounded-md"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80';
-              }}
-            />
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900">{item.name}</h4>
-              <div className="text-sm text-gray-500 mt-1">
-                <span className="mr-4">Taille: {item.size}</span>
-                <span>Couleur: {item.color}</span>
-              </div>
-              <div className="text-sm text-gray-500 mt-1">
-                <span className="mr-4">Personnalisation: {item.personalization}</span>
-                <span>Pack: {item.pack}</span>
-                <span className="ml-4">Box: {item.box}</span>
-              </div>
-              <div className="flex justify-between items-center mt-2">
-                <span className="text-sm text-gray-600">Quantité: {item.quantity}</span>
-                <span className="font-medium">{formatCurrency(item.total_price)}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-
-const OrderDetailsModal: React.FC<{
-  order: Order;
-  onClose: () => void;
-  onGeneratePDF: () => void;
-}> = ({ order, onClose, onGeneratePDF }) => {
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-[#700100]">
-            Commande {order.order_id}
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="text-gray-500" />
-          </button>
-        </div>
-
-        <div className="space-y-8">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Informations client</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Nom</p>
-                <p className="font-medium">{`${order.user_details.first_name} ${order.user_details.last_name}`}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{order.user_details.email}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Téléphone</p>
-                <p className="font-medium">{order.user_details.phone}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Adresse</p>
-                <p className="font-medium">{`${order.user_details.address}, ${order.user_details.zip_code}, ${order.user_details.country}`}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Note</p>
-                <p className="font-medium">{order.user_details.order_note}</p>
-              </div>
-            </div>
-          </div>
-
-          <OrderItemsList items={order.items} />
-
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Détails du prix</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Sous-total</span>
-                <span className="font-medium">{formatCurrency(order.price_details.subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Frais de livraison</span>
-                <span className="font-medium">{formatCurrency(order.price_details.shipping_cost)}</span>
-              </div>
-              {order.price_details.has_newsletter_discount && (
-                <div className="flex justify-between text-green-600">
-                  <span>Réduction newsletter</span>
-                  <span>-{formatCurrency(order.price_details.newsletter_discount_amount)}</span>
-                </div>
-              )}
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>{formatCurrency(order.price_details.final_total)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="font-semibold text-lg text-[#700100] mb-4">Informations de paiement</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Méthode de paiement</p>
-                <p className="font-medium capitalize">{order.payment.method}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Statut du paiement</p>
-                <p className="font-medium capitalize">{order.payment.status}</p>
-              </div>
-              {order.payment.completed_at && (
-                <div>
-                  <p className="text-sm text-gray-600">Paiement effectué le</p>
-                  <p className="font-medium">{formatDate(order.payment.completed_at)}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-4">
-          <button
-            onClick={onGeneratePDF}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
-          >
-            <FileText className="w-4 h-4" /> Générer PDF
-          </button>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Main Component
-const OrdersTable: React.FC = () => {
+export const OrdersTable: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -272,7 +39,7 @@ const OrdersTable: React.FC = () => {
     };
     fetchOrders();
   }, []);
-  
+
   useEffect(() => {
     const filtered = orders.filter(order =>
       Object.values(order.user_details).some(value =>
@@ -297,84 +64,9 @@ const OrdersTable: React.FC = () => {
     setFilteredOrders(sorted);
   };
 
-  const generatePDF = (order: Order) => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
-    
-    // Header
-    doc.setFillColor(112, 0, 0);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    // Company Info
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.text('NOM DE LA SOCIÉTÉ', 20, 25);
-    
-    // Order Info
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(20);
-    doc.text(`Commande ${order.order_id}`, 20, 60);
-    
-    // Customer Details
-    doc.setFontSize(12);
-    doc.setTextColor(112, 0, 0);
-    doc.text('INFORMATIONS CLIENT', 20, 80);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`${order.user_details.first_name} ${order.user_details.last_name}`, 20, 90);
-    doc.text(order.user_details.address, 20, 100);
-    doc.text(`${order.user_details.zip_code}, ${order.user_details.country}`, 20, 110);
-    doc.text(`Email: ${order.user_details.email}`, 20, 120);
-    doc.text(`Téléphone: ${order.user_details.phone}`, 20, 130);
-
-    // Order Items
-    doc.setTextColor(112, 0, 0);
-    doc.text('ARTICLES COMMANDÉS', 20, 150);
-    
-    const tableData = order.items.map(item => [
-      item.name,
-      item.size,
-      item.color,
-      item.quantity.toString(),
-      formatCurrency(item.price),
-      formatCurrency(item.price * item.quantity)
-    ]);
-    
-    doc.autoTable({
-      startY: 160,
-      head: [['Produit', 'Taille', 'Couleur', 'Quantité', 'Prix', 'Total']],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { 
-        fillColor: [112, 0, 0],
-        fontSize: 12,
-        halign: 'center'
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 5
-      }
-    });
-
-    // Price Details
-    const finalY = (doc as any).lastAutoTable.finalY + 20;
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Sous-total: ${formatCurrency(order.price_details.subtotal)}`, 20, finalY);
-    doc.text(`Frais de livraison: ${formatCurrency(order.price_details.shipping_cost)}`, 20, finalY + 10);
-    if (order.price_details.has_newsletter_discount) {
-      doc.text(`Réduction newsletter: -${formatCurrency(order.price_details.newsletter_discount_amount)}`, 20, finalY + 20);
-    }
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Total final: ${formatCurrency(order.price_details.final_total)}`, 20, finalY + 35);
-
-    // Save PDF
-    doc.save(`Commande_${order.order_id}.pdf`);
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'delivered':
+      case 'reussie':
         return <CheckCircle className="text-green-500" />;
       case 'processing':
         return <Clock className="text-yellow-500" />;
@@ -387,7 +79,7 @@ const OrdersTable: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'delivered':
+      case 'reussie':
         return 'bg-green-100 text-green-800';
       case 'processing':
         return 'bg-yellow-100 text-yellow-800';
@@ -400,8 +92,8 @@ const OrdersTable: React.FC = () => {
 
   const getStatusText = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'delivered':
-        return 'Livré';
+      case 'reussie':
+        return 'Réussie';
       case 'processing':
         return 'En traitement';
       case 'shipped':
@@ -516,7 +208,7 @@ const OrdersTable: React.FC = () => {
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => generatePDF(order)}
+                      onClick={() => generateOrderPDF(order)}
                       className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       title="Générer PDF"
                     >
@@ -534,7 +226,7 @@ const OrdersTable: React.FC = () => {
         <OrderDetailsModal
           order={selectedOrder}
           onClose={() => setIsModalOpen(false)}
-          onGeneratePDF={() => generatePDF(selectedOrder)}
+          onGeneratePDF={() => generateOrderPDF(selectedOrder)}
         />
       )}
     </div>
