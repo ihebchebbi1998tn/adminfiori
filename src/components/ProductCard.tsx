@@ -251,7 +251,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onUpdate, onDelete }
           </div>
 
           <div className="grid grid-cols-6 gap-0.5 text-[10px] bg-gray-50 p-1 rounded">
-  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(product.itemgroup_product) ? (
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes', 'porte-passport'].includes(product.itemgroup_product) ? (
     // For these product groups, show a message instead of sizes
     <div className="col-span-6 text-center">
       <p>Quantité : {product.qnty_product}</p>

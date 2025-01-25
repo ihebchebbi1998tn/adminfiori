@@ -31,7 +31,7 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes', 'porte-cles']
+        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes', 'porte-cles' , 'porte-passport']
       },
       femme: {
         label: 'Femme',
@@ -387,7 +387,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) ? (
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes', 'porte-passport'].includes(formData.itemgroup_product) ? (
     // Render qnty_product input field
     <div className="col-span-6">
       <label className="block text-sm font-medium mb-1">Quantité</label>

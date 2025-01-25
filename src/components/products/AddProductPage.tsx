@@ -64,7 +64,7 @@ const PRODUCT_OPTIONS = {
     categories: {
       homme: {
         label: 'Homme',
-        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes' , 'porte-cles']
+        itemGroups: ['portefeuilles', 'ceintures', 'cravates', 'mallettes', 'porte-cartes' , 'porte-cles' , 'porte-passport']
       },
       femme: {
         label: 'Femme',
@@ -435,7 +435,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
               </div>
 
               <div className="md:col-span-2">
-              {!['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) && (
+              {!['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes' , 'porte-passport'].includes(formData.itemgroup_product) && (
   <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
 )}
   <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
