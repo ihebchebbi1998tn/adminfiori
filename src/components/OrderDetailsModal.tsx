@@ -15,6 +15,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onClose,
   onGeneratePDF,
 }) => {
+  // Calculate the total personalization cost
+  const personalizationPrice = 30; // Assuming each personalization costs $5
+  const personalizationCount = order.items.filter(
+    (item) => item.personalization !== '-'
+  ).length;
+  const personalizationTotalCost = personalizationCount * personalizationPrice;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -77,6 +84,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <span className="text-gray-600">Frais de livraison</span>
                 <span className="font-medium">{formatCurrency(order.price_details.shipping_cost)}</span>
               </div>
+              {personalizationCount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Frais de personnalisation ({personalizationCount} items)</span>
+                  <span className="font-medium">{formatCurrency(personalizationTotalCost)}</span>
+                </div>
+              )}
               {order.price_details.has_newsletter_discount && (
                 <div className="flex justify-between text-green-600">
                   <span>Réduction newsletter</span>
@@ -86,7 +99,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>{formatCurrency(order.price_details.final_total)}</span>
+                  <span>
+                    {formatCurrency(
+                      order.price_details.final_total + personalizationTotalCost
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
