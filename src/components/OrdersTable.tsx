@@ -77,6 +77,16 @@ export const OrdersTable: React.FC = () => {
     }
   };
 
+  const calculateFinalTotal = (order: Order) => {
+    let additionalFee = 0;
+    order.items.forEach(item => {
+      if (item.personalization && item.personalization !== '-') {
+        additionalFee += 30;
+      }
+    });
+    return order.price_details.final_total + additionalFee;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'reussie':
@@ -193,7 +203,7 @@ export const OrdersTable: React.FC = () => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(order.price_details.final_total)}
+                  {formatCurrency(calculateFinalTotal(order))}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex gap-2">

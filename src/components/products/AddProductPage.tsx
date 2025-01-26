@@ -227,27 +227,36 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     const form = e.currentTarget as HTMLFormElement;
     const submitFormData = new FormData(form);
-
+  
+    // Ensure that all form fields are added, with null or 0 for empty values
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value === '' || value === null || value === undefined) {
+        submitFormData.append(key, null); // Adjust if backend needs null as a proper null value
+      } else {
+        submitFormData.append(key, value);
+      }
+    });
+  
     images.forEach((image, index) => {
       const imageKey = index === 0 ? 'img_product' : `img${index + 1}_product`;
       submitFormData.append(imageKey, image);
     });
-
+  
     try {
       const response = await fetch('https://www.fioriforyou.com/backfiori/add.php', {
         method: 'POST',
         body: submitFormData,
       });
-
+  
       if (!response.ok) {
         throw new Error(`Erreur HTTP! statut: ${response.status}`);
       }
-
+  
       const responseData = await response.json();
-
+  
       if (responseData.status === 'success') {
         onBack();
       } else {
@@ -259,6 +268,8 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
       setLoading(false);
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
