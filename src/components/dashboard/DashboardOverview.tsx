@@ -62,7 +62,15 @@ const VueDEnsembleTableauDeBord = () => {
           setNombreCommandes(donneesOrders.data.length);
   
           const total = donneesOrders.data.reduce((sum, order) => {
-            return sum + (order.price_details?.final_total || 0);
+            let additionalFee = 0;
+            if (order.items) {
+              order.items.forEach((item) => {
+                if (item.personalization && item.personalization !== '-') {
+                  additionalFee += 30;
+                }
+              });
+            }
+            return sum + (order.price_details?.final_total || 0) + additionalFee;
           }, 0);
           setRevenuTotal(total);
   
@@ -74,9 +82,18 @@ const VueDEnsembleTableauDeBord = () => {
             const date = new Date(order.created_at);
             const dailyKey = date.toISOString().split('T')[0];
             const monthlyKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            
-            const amount = order.price_details?.final_total || 0;
-            
+  
+            let additionalFee = 0;
+            if (order.items) {
+              order.items.forEach((item) => {
+                if (item.personalization && item.personalization !== '-') {
+                  additionalFee += 30;
+                }
+              });
+            }
+  
+            const amount = (order.price_details?.final_total || 0) + additionalFee;
+  
             dailyRevenueMap.set(dailyKey, (dailyRevenueMap.get(dailyKey) || 0) + amount);
             monthlyRevenueMap.set(monthlyKey, (monthlyRevenueMap.get(monthlyKey) || 0) + amount);
           });
