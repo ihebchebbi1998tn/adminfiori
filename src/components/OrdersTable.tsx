@@ -79,13 +79,29 @@ export const OrdersTable: React.FC = () => {
 
   const calculateFinalTotal = (order: Order) => {
     let additionalFee = 0;
-    order.items.forEach(item => {
-      if (item.personalization && item.personalization !== '-') {
-        additionalFee += 30;
-      }
-    });
+    
+    // Convert order created_at to Date object
+    const orderDate = new Date(order.created_at);
+    
+    // Define date range
+    const startDate = new Date('2025-02-02');
+    const endDate = new Date('2025-02-17');
+  
+    // Check if order date is within range
+    const isInPromotionalPeriod = orderDate >= startDate && orderDate <= endDate;
+  
+    // Only calculate additional fee if NOT in promotional period
+    if (!isInPromotionalPeriod) {
+      order.items.forEach(item => {
+        if (item.personalization && item.personalization !== '-') {
+          additionalFee += 30;
+        }
+      });
+    }
+  
     return order.price_details.final_total + additionalFee;
   };
+  
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {

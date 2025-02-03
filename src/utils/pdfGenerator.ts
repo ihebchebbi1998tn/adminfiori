@@ -35,6 +35,12 @@ export const generateOrderPDF = (order: Order) => {
 
   addHeader();
 
+  // Check for promotional period
+  const orderDate = new Date(order.created_at);
+  const startDate = new Date('2025-02-02');
+  const endDate = new Date('2025-02-17');
+  const isInPromotionalPeriod = orderDate >= startDate && orderDate <= endDate;
+
   // Customer Information Section
   doc.setFillColor(247, 247, 247);
   doc.rect(10, yPosition, pageWidth - 20, 70, 'F');
@@ -72,19 +78,19 @@ export const generateOrderPDF = (order: Order) => {
   yPosition += 10;
 
   // Items Table
-  const personalizationCost = order.items.reduce((total, item) => {
+  const personalizationCost = isInPromotionalPeriod ? 0 : order.items.reduce((total, item) => {
     return item.personalization !== '-' ? total + 30 * item.quantity : total;
   }, 0);
 
-  const itemsTableHeaders = [['Article', 'Taille', 'Couleur', 'Personalisation', 'Qté', 'Prix unit.', 'Total']];
+  const itemsTableHeaders = [['Article', 'Taille', 'Couleur', 'Personnalisation', 'Qté', 'Prix unit.', 'Total']];
   const itemsTableData = order.items.map(item => [
     item.name,
     item.size,
     item.color,
     item.personalization,
     item.quantity.toString(),
-    formatCurrency(item.price + (item.personalization !== '-' ? 30 : 0)),
-    formatCurrency(item.total_price + (item.personalization !== '-' ? 30 * item.quantity : 0))
+    formatCurrency(item.price + (item.personalization !== '-' && !isInPromotionalPeriod ? 30 : 0)),
+    formatCurrency(item.total_price + (item.personalization !== '-' && !isInPromotionalPeriod ? 30 * item.quantity : 0)),
   ]);
 
   doc.autoTable({
@@ -113,6 +119,8 @@ export const generateOrderPDF = (order: Order) => {
     ['Frais de livraison:', formatCurrency(order.price_details.shipping_cost)],
     ...(order.price_details.has_newsletter_discount ? [['Réduction newsletter:', `-${formatCurrency(order.price_details.newsletter_discount_amount)}`]] : []),
     ...(personalizationCost > 0 ? [['Total personnalisation:', formatCurrency(personalizationCost)]] : []),
+    ...(isInPromotionalPeriod && order.items.some(item => item.personalization !== '-') ? 
+      [['Promotion personnalisation:', 'GRATUIT']] : []),
     ['Total:', formatCurrency(order.price_details.final_total + personalizationCost)]
   ];
 

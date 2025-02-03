@@ -15,11 +15,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   onClose,
   onGeneratePDF,
 }) => {
-  // Calculate the total personalization cost
-  const personalizationPrice = 30; // Assuming each personalization costs $5
+  // Calculate the total personalization cost with promotional period considerations
+  const orderDate = new Date(order.created_at);
+  const startDate = new Date('2025-02-02');
+  const endDate = new Date('2025-02-17');
+  const isInPromotionalPeriod = orderDate >= startDate && orderDate <= endDate;
+
+  const personalizationPrice = isInPromotionalPeriod ? 0 : 30; // Free during promotional period
   const personalizationCount = order.items.filter(
     (item) => item.personalization !== '-'
   ).length;
+  
   const personalizationTotalCost = personalizationCount * personalizationPrice;
 
   return (
