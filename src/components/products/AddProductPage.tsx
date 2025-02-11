@@ -450,7 +450,7 @@ const AddProductPage: React.FC<AddProductPageProps> = ({ onBack }) => {
   <h3 className="text-md font-semibold mb-4 text-gray-700">Quantités par Taille</h3>
 )}
   <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) ? null : (
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes','porte-passport'].includes(formData.itemgroup_product) ? null : (
     formData.itemgroup_product === 'costumes' ? (
       // Render costume sizes
       ['48', '50', '52', '54', '56', '58'].map((size) => (
