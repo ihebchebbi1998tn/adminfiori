@@ -428,7 +428,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 
             <div className="md:col-span-2 grid grid-cols-6 gap-4">
-  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes'].includes(formData.itemgroup_product) ? null : (
+  {['cravates', 'portefeuilles', 'mallettes', 'porte-cles', 'porte-cartes' , 'porte-passport'].includes(formData.itemgroup_product) ? null : (
     formData.itemgroup_product === 'costumes' ? (
       // Render costume sizes
       ['48', '50', '52', '54', '56', '58'].map((size) => (
